@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test on ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # xcode-27: macOS 27 with Xcode 27 and Swift 6.4 (the newest GitHub-hosted image).
+        # macos-26: macOS 26 with Xcode 26, the oldest toolchain the package supports.
+        runner: [xcode-27, macos-26]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Build
+        run: swift build --build-tests
+
+      - name: Unit tests
+        run: swift test --skip-build --parallel
+
+      # No iPhone is attached to a hosted runner, so the full pipeline (scan, classify, plan,
+      # preview, apply, restore) runs against the fake cfgutil in Tests/Fixtures.
+      - name: End-to-end run against a fake iPhone
+        run: bash scripts/demo.sh "$RUNNER_TEMP/omi-demo"
+
+      - name: Upload the preview page
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: preview-${{ matrix.runner }}
+          path: ${{ runner.temp }}/omi-demo/preview.html
+          if-no-files-found: ignore
+
+  lint:
+    name: Format check
+    runs-on: xcode-27
+    timeout-minutes: 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      # Reports style drift as warnings. Add --strict once the tree has been through `swift format --in-place`.
+      - name: swift format lint
+        run: swift format lint --recursive Sources Tests Package.swift

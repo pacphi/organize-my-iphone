@@ -1,0 +1,40 @@
+name: Release
+
+# Push a tag such as v0.1.0 to build the command-line tool and publish it as a GitHub release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Test
+        run: swift test --parallel
+
+      - name: Build the release binary
+        run: |
+          swift build -c release --product organize-my-iphone
+          BIN_DIR="$(swift build -c release --show-bin-path)"
+          mkdir -p dist
+          cp "$BIN_DIR/organize-my-iphone" dist/
+          ARCHIVE="organize-my-iphone-${GITHUB_REF_NAME}-macos-arm64.tar.gz"
+          tar -czf "dist/$ARCHIVE" -C dist organize-my-iphone
+          (cd dist && shasum -a 256 "$ARCHIVE" > checksums.txt)
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/*.tar.gz dist/checksums.txt \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes

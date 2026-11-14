@@ -1,0 +1,14 @@
+{
+  "fallback": "Other",
+  "categories": [
+    { "name": "Daily", "hint": "apps opened every day: messaging, mail, calendar, notes, browser" },
+    { "name": "Work", "hint": "client work, developer tools, admin consoles, meetings, documents" },
+    { "name": "AI", "hint": "AI assistants and chatbots, image or voice generation" },
+    { "name": "Money", "hint": "banking, payments, investing, budgeting, tax" },
+    { "name": "Out & About", "hint": "maps, travel, ride sharing, parking, food delivery, restaurants, shopping" },
+    { "name": "Media", "hint": "music, podcasts, video streaming, news, books, photos, camera" },
+    { "name": "Home & Health", "hint": "smart home, connected devices, fitness, medical, sleep" },
+    { "name": "Play", "hint": "games, social networks, hobbies" },
+    { "name": "System", "hint": "settings, utilities, passwords, VPN, system tools" }
+  ]
+}

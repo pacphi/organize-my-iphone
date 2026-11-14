@@ -1,0 +1,89 @@
+# organize-my-iphone: files git should not track.
+#
+# Comments sit on the line above each pattern. Git does not allow a comment after a pattern
+# on the same line: it would be read as part of the pattern.
+#
+# Package.resolved is tracked on purpose. This package builds a command-line tool, so pinned
+# dependency versions keep local, CI and release builds identical.
+
+# ----------------------------------------------------------------------------
+# Swift Package Manager
+# ----------------------------------------------------------------------------
+
+# Build products, dependency checkouts and test bundles
+.build/
+
+# SwiftPM's and Xcode's per-user state for this package
+.swiftpm/
+
+# ----------------------------------------------------------------------------
+# Xcode
+# ----------------------------------------------------------------------------
+
+# Generated projects and workspaces; the package opens in Xcode without them
+*.xcodeproj
+*.xcworkspace
+
+# Per-user settings: breakpoints, window layout, scheme order
+xcuserdata/
+*.xcuserstate
+
+# Build output when DerivedData is kept next to the sources
+DerivedData/
+
+# Test result bundles
+*.xcresult
+
+# ----------------------------------------------------------------------------
+# Release artifacts
+# ----------------------------------------------------------------------------
+
+# The release workflow puts the binary, archive and checksums here
+dist/
+
+# ----------------------------------------------------------------------------
+# Phone data
+# ----------------------------------------------------------------------------
+# The default workspace is ~/.organize-my-iphone, outside the repository. A workspace made
+# inside the repository must stay out of git: it lists every app on your phone.
+
+# Workspaces created here with --workspace or OMI_WORKSPACE
+.omi/
+workspace/
+omi-demo/
+
+# Home Screen backups copied in from a workspace
+icon-layout-*.json
+
+# ----------------------------------------------------------------------------
+# macOS
+# ----------------------------------------------------------------------------
+
+# Finder folder settings
+.DS_Store
+
+# Resource forks left behind on non-Mac file systems
+._*
+
+# ----------------------------------------------------------------------------
+# Editors
+# ----------------------------------------------------------------------------
+
+# Visual Studio Code and JetBrains settings
+.vscode/
+.idea/
+
+# Vim swap files and editor backups
+*.swp
+*~
+
+# ----------------------------------------------------------------------------
+# Local settings and logs
+# ----------------------------------------------------------------------------
+
+# Environment files, which often hold tokens
+.env
+.env.*
+
+# Log files
+*.log

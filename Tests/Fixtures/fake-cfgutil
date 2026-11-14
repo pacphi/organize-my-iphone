@@ -1,0 +1,112 @@
+#!/bin/bash
+# A stand-in for Apple Configurator's cfgutil, so tests and CI can run the whole
+# pipeline without an iPhone attached. It answers the four commands the tool uses,
+# in the same shapes the real cfgutil 2.20 prints.
+#
+#   fake-cfgutil --format JSON list
+#   fake-cfgutil --format JSON [-e ECID] get installedApps
+#   fake-cfgutil [-e ECID] get-icon-layout
+#   fake-cfgutil [-e ECID] set-icon-layout <file>
+#
+# Set FAKE_CFGUTIL_STATE to a file path to make set-icon-layout stick: the layout is
+# saved there, and get-icon-layout returns it from then on.
+
+set -euo pipefail
+
+ECID="0x1A2B3C4D5E6F"
+STATE="${FAKE_CFGUTIL_STATE:-}"
+
+command=""
+argument=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --format | -e | --ecid | --timeout)
+      shift 2
+      ;;
+    *)
+      if [ -z "$command" ]; then
+        command="$1"
+      elif [ -z "$argument" ]; then
+        argument="$1"
+      fi
+      shift
+      ;;
+  esac
+done
+
+default_layout() {
+  cat <<'JSON'
+[
+  ["com.apple.mobilephone", "com.apple.mobilesafari", "com.apple.MobileSMS", "com.apple.mobilemail"],
+  [
+    "com.apple.Maps", "com.apple.camera", "com.apple.mobileslideshow", "com.spotify.client",
+    "com.openai.chat", "com.anthropic.claude", "com.burbn.instagram", "com.chase.sig.ios",
+    "com.paypal.PPClient", "com.ubercab.UberClient", "com.netflix.Netflix", "com.amazon.Amazon",
+    ["Stuff", "com.duolingo.DuolingoMobile", "com.nytimes.NYTimes", "com.tinyspeck.chatlyio"],
+    "https://example.com/dashboard"
+  ],
+  [
+    "com.github.stormbreaker.prod", "com.google.Gmail", "com.strava.stravaride", "com.starbucks.mystarbucks",
+    ["Games", ["com.king.candycrushsaga", "com.supercell.magic"], ["com.mojang.minecraftpe"]],
+    "com.apple.Preferences", "com.apple.Health"
+  ]
+]
+JSON
+}
+
+case "$command" in
+  list)
+    cat <<JSON
+{"Command":"list","Output":{"$ECID":{"locationID":17825792,"UDID":"00008130-001A2B3C4D5E6F00","ECID":"$ECID","name":"Test iPhone","deviceType":"iPhone17,1"}},"Type":"CommandOutput","Devices":["$ECID"]}
+JSON
+    ;;
+  get)
+    if [ "$argument" != "installedApps" ]; then
+      echo "{\"Command\":\"get\",\"Type\":\"Error\",\"Message\":\"Unsupported property: $argument\",\"Code\":2}"
+      exit 1
+    fi
+    cat <<JSON
+{"Command":"get","Output":{"$ECID":{"installedApps":[
+{"bundleIdentifier":"com.spotify.client","displayName":"Spotify","itunesName":"Spotify: Music and Podcasts","bundleVersion":"9.0.1"},
+{"bundleIdentifier":"com.openai.chat","displayName":"ChatGPT","itunesName":"ChatGPT","bundleVersion":"1.2026.300"},
+{"bundleIdentifier":"com.anthropic.claude","displayName":"Claude","itunesName":"Claude by Anthropic","bundleVersion":"1.260"},
+{"bundleIdentifier":"com.burbn.instagram","displayName":"Instagram","itunesName":"Instagram","bundleVersion":"400.0"},
+{"bundleIdentifier":"com.chase.sig.ios","displayName":"Chase","itunesName":"Chase Mobile","bundleVersion":"5.60"},
+{"bundleIdentifier":"com.paypal.PPClient","displayName":"PayPal","itunesName":"PayPal","bundleVersion":"8.80"},
+{"bundleIdentifier":"com.ubercab.UberClient","displayName":"Uber","itunesName":"Uber - Request a ride","bundleVersion":"3.700"},
+{"bundleIdentifier":"com.netflix.Netflix","displayName":"Netflix","itunesName":"Netflix","bundleVersion":"18.1"},
+{"bundleIdentifier":"com.amazon.Amazon","displayName":"Amazon","itunesName":"Amazon Shopping","bundleVersion":"26.20"},
+{"bundleIdentifier":"com.duolingo.DuolingoMobile","displayName":"Duolingo","itunesName":"Duolingo - Language Lessons","bundleVersion":"8.10"},
+{"bundleIdentifier":"com.nytimes.NYTimes","displayName":"NYTimes","itunesName":"The New York Times","bundleVersion":"11.5"},
+{"bundleIdentifier":"com.tinyspeck.chatlyio","displayName":"Slack","itunesName":"Slack","bundleVersion":"26.11"},
+{"bundleIdentifier":"com.github.stormbreaker.prod","displayName":"GitHub","itunesName":"GitHub","bundleVersion":"1.230"},
+{"bundleIdentifier":"com.google.Gmail","displayName":"Gmail","itunesName":"Gmail - Email by Google","bundleVersion":"6.0.261"},
+{"bundleIdentifier":"com.strava.stravaride","displayName":"Strava","itunesName":"Strava: Run, Bike, Hike","bundleVersion":"430.0"},
+{"bundleIdentifier":"com.starbucks.mystarbucks","displayName":"Starbucks","itunesName":"Starbucks","bundleVersion":"6.90"},
+{"bundleIdentifier":"com.king.candycrushsaga","displayName":"Candy Crush","itunesName":"Candy Crush Saga","bundleVersion":"1.310"},
+{"bundleIdentifier":"com.supercell.magic","displayName":"Clash of Clans","itunesName":"Clash of Clans","bundleVersion":"17.0"},
+{"bundleIdentifier":"com.mojang.minecraftpe","displayName":"Minecraft","itunesName":"Minecraft","bundleVersion":"1.22"}
+]},"Errors":{"$ECID":{}}},"Type":"CommandOutput","Devices":["$ECID"]}
+JSON
+    ;;
+  get-icon-layout)
+    if [ -n "$STATE" ] && [ -f "$STATE" ]; then
+      cat "$STATE"
+    else
+      default_layout
+    fi
+    ;;
+  set-icon-layout)
+    if [ -z "$argument" ] || [ ! -f "$argument" ]; then
+      echo "cfgutil: error: layout file not found: $argument" >&2
+      exit 1
+    fi
+    if [ -n "$STATE" ]; then
+      cp "$argument" "$STATE"
+    fi
+    ;;
+  *)
+    echo "{\"Command\":\"$command\",\"Type\":\"Error\",\"Message\":\"Unknown command\",\"Code\":1}"
+    exit 1
+    ;;
+esac
