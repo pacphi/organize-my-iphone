@@ -93,7 +93,7 @@
     var pages = [];
     groups.forEach(function (g) {
       chunk(g.apps.slice().sort(sorter || byName), PER_PAGE).forEach(function (p, i) {
-        pages.push({ label: i ? g.name + " (more)" : g.name, items: p });
+        pages.push({ label: i ? g.name + " (" + (i + 1) + ")" : g.name, items: p });
       });
     });
     return pages;
@@ -170,16 +170,20 @@
     {
       id: "alphabetical", group: "new", title: "Alphabetical", host: "c-blockapede", who: "Blockapede",
       text: "Blockapede is made of letters, so of course it sorts A to Z. No thinking needed. Add --letter-folders for one folder per letter.",
-      build: function () { return plainPages(APPS.slice().sort(byName)); }
+      build: function () {
+        return chunk(APPS.slice().sort(byName), PER_PAGE).map(function (p) {
+          return { label: p[0].n[0] + "\u2013" + p[p.length - 1].n[0], items: p };
+        });
+      }
     },
     {
       id: "most-used", group: "new", title: "Most used", host: "c-toppy", who: "Toppy",
-      text: "Toppy wears the crown, and so do your busiest apps: they go first. It reads how often you open each app from a --usage file. No file? Your current order stays.",
+      text: "Toppy wears the crown, and so do your busiest apps: they fill page 1. Usage comes from a --usage file (copy the order from Screen Time). No file? Your current icon order stands in, and the preview says so.",
       build: function () { return plainPages(APPS.slice().sort(byUse)); }
     },
     {
       id: "time-of-day", group: "new", title: "Time of day", host: "c-dayzee", who: "Dayzee",
-      text: "Dayzee is always half awake. You get one page for each part of the day: Morning, Work day, Evening and Anytime. Swipe through your day.",
+      text: "Dayzee is always half awake. Every part of the day gets its own page: Morning, Work day, Evening and Anytime. Pair the pages with a Focus in Settings for a Home Screen that changes with your day.",
       build: function () { return labeledPages(groupBy(APPS, "t", TIMES), byUse); }
     },
     {
@@ -205,22 +209,25 @@
     },
     {
       id: "thumb-reach", group: "new", title: "Thumb reach", host: "c-reachlet", who: "Reachlet",
-      text: "Reachlet has one very long arm and no patience for top rows. Like Most used, but on each page the top apps go in the bottom rows, right where your thumb is.",
+      text: "Reachlet has one very long arm and no patience for top rows. Same order as Most used, but on every full page the top apps sit in the bottom rows: rank 1 bottom left. A page that isn't full keeps plain order, because iOS slides icons up to fill gaps.",
       build: function () {
         return chunk(APPS.slice().sort(byUse), PER_PAGE).map(function (p) {
-          // Busiest apps fill the last rows; the quietest end up at the top.
-          return { items: p.slice().reverse() };
+          // As in the tool: on a full page, rank 1 sits bottom left and the bottom row fills first.
+          // A page that isn't full keeps plain rank order, because iOS moves icons up to fill gaps.
+          if (p.length < PER_PAGE) return { items: p };
+          var rows = chunk(p, 4).reverse();
+          return { items: [].concat.apply([], rows) };
         });
       }
     },
     {
       id: "places", group: "new", title: "Places", host: "c-packpin", who: "Packpin",
-      text: "Packpin goes everywhere. You get a page for each place: Home, Commute, Office, Travel, Gym and Everywhere.",
+      text: "Packpin goes everywhere. Each place gets its own page: Home, Commute, Office, Travel, Gym and Everywhere. Pair them with a Focus in Settings so the right page shows up in the right place.",
       build: function () { return labeledPages(groupBy(APPS, "p", PLACES), byUse); }
     },
     {
       id: "new-and-review", group: "new", title: "New and review", host: "c-lensley", who: "Lensley",
-      text: "Lensley looks very closely. Your newest apps go on page 1, the rest by category, and a Review page holds apps the --usage file never saw. Great for a clean-out.",
+      text: "Lensley looks very closely. Your newest apps go on page 1 (from a --recent file, or a best guess from your layout), the rest by category, and a Review page at the back holds apps your --usage file never mentions. Delete candidates, basically.",
       build: function () {
         var review = APPS.filter(function (a) { return a.u === null; }).sort(byName);
         var rest = APPS.filter(function (a) { return a.u !== null; });
@@ -236,7 +243,7 @@
     },
     {
       id: "essentials", group: "new", title: "Essentials", host: "c-pebbs", who: "Pebbs",
-      text: "Pebbs keeps it calm: one page of essentials (12 by default, change it with --essentials) and everything else in folders on later pages. No app is removed.",
+      text: "Pebbs keeps it calm: one page of essentials (12 by default, up to 24 with --essentials) and everything else in category folders on later pages. No app is removed. Tip: hide the other pages on the phone for a truly zen Home Screen.",
       build: function () {
         var sorted = APPS.slice().sort(byUse);
         var top = sorted.slice(0, 12);
@@ -347,7 +354,7 @@
     $("host-name").textContent = layout.who;
     setTextWithFlags($("host-text"), layout.text);
     // The new layouts are not in 0.1.0 yet, so only show a command for ones that ship today.
-    $("host-cmd").textContent = layout.group === "now" ? "organize-my-iphone apply " + layout.id + " --dry-run" : "";
+    $("host-cmd").textContent = layout.group === "before" ? "" : "organize-my-iphone apply " + layout.id + " --dry-run";
     $("host-soon").hidden = layout.group !== "new";
     $("host-c").querySelector("use").setAttribute("href", "#" + layout.host);
     renderPage(true);

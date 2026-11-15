@@ -57,13 +57,14 @@
       "✓ Look up 42 app(s) in the App Store",
       "✓ Placed 30 app(s) by App Store genre and built-in rules",
       "✓ Classify 12 app(s) with Ollama",
-      "✓ Build 2 layout proposal(s)",
+      "✓ Build 12 layout proposal(s)",
       "✓ Write the preview page",
       "",
       "Nothing on the phone has changed.",
-      "When you have picked a proposal:",
-      "  organize-my-iphone apply category-pages",
-      "  organize-my-iphone apply folder-board"
+      "When you have picked a proposal, check it and apply it:",
+      "  organize-my-iphone apply <scheme> --dry-run",
+      "  organize-my-iphone apply <scheme>",
+      "Schemes built: category-pages, folder-board, alphabetical, …"
     ],
     scan: [
       "$ organize-my-iphone scan",
@@ -92,7 +93,7 @@
     ],
     plan: [
       "$ organize-my-iphone plan",
-      "✓ Build 2 layout proposal(s)",
+      "✓ Build 12 layout proposal(s)",
       "",
       "Folder board (folder-board)",
       "  1 page(s), 9 folder(s)",

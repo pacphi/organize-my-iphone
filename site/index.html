@@ -402,7 +402,7 @@
       <div class="hero-copy">
         <p class="burst" aria-label="Version 0.1.0, a first cut">v0.1.0 <span>first cut!</span></p>
         <h1>Your Home Screen<br>is a junk drawer.<br><em>Let's fix that.</em></h1>
-        <p class="lede">organize-my-iphone is a command-line tool for your Mac. Plug in your iPhone, and a small crew of critters reads your apps, sorts them into groups with a model that runs on your Mac, and lays out tidier Home Screens for you to try. Nothing on the phone moves until you say so. Pinky promise. Backed up, too.</p>
+        <p class="lede">organize-my-iphone is a command-line tool for your Mac. Plug in your iPhone, and a small crew of critters reads your apps, sorts them into groups with a model that runs on your Mac, and lays out twelve tidier Home Screens for you to try. Nothing on the phone moves until you say so. Pinky promise. Backed up, too.</p>
         <div class="cta">
           <a class="btn btn-main" href="#why">Show me how</a>
           <a class="btn" href="#layouts">Skip to the layouts</a>
@@ -500,7 +500,7 @@
           <svg class="card-c" aria-hidden="true"><use href="#c-gridley"/></svg>
           <p class="step">Step 4 · <code>plan</code></p>
           <h3>Gridley</h3>
-          <p>Builds the new layouts and checks each one against iOS limits: 24 icons a page, 4 in the dock, 9 per folder page, 15 pages.</p>
+          <p>Builds all twelve layouts and checks each one against iOS limits: 24 icons a page, 4 in the dock, 9 per folder page, 15 pages.</p>
         </li>
         <li class="card reveal" style="--accent:#8ecdf7">
           <svg class="card-c" aria-hidden="true"><use href="#c-lumi"/></svg>
@@ -550,7 +550,7 @@
             <p class="step"><code>enrich</code> · no phone needed</p>
             <h3>Pagelet does the reading</h3>
             <p>Looks up each app's App Store genre and description, so the sorting has more to go on. It sends Apple only the app IDs. Skip it with <code>--offline</code>.</p>
-            <p class="soon-note">Coming next: <code>--icon-colors-from-store</code> also fetches each app's icon to find its color for the Rainbow layout. <a href="#colors">See the color wheel</a>.</p>
+            <p class="soon-note">New: add <code>--icon-colors-from-store</code> and it also fetches each app's icon to find its color for the Rainbow layout. <a href="#colors">See the color wheel</a>.</p>
           </li>
           <li class="tour-step" data-step="classify" data-host="c-sortle">
             <p class="step"><code>classify</code> · no phone needed</p>
@@ -590,7 +590,7 @@
     <section id="layouts" class="section">
       <button type="button" class="roamer roam-2" data-quips="lumi" aria-label="Poke Lumi"><svg aria-hidden="true"><use href="#c-lumi"/></svg></button>
       <h2 class="section-title reveal"><span>Try a layout</span></h2>
-      <p class="section-lede">Pick a layout to see how it would arrange a sample phone. Every layout has its own critter to explain it. The apps are made up; your phone gets the same treatment with your real ones.</p>
+      <p class="section-lede">Twelve layouts, one tidy phone at a time. Pick one to see how it would arrange a sample phone. Every layout has its own critter to explain it. The apps are made up; your phone gets the same treatment with your real ones.</p>
 
       <div class="play panel">
         <div class="picker">
@@ -599,11 +599,11 @@
             <div class="chips" id="chips-before"></div>
           </div>
           <div class="picker-group">
-            <h3>In 0.1.0 today</h3>
+            <h3>The originals</h3>
             <div class="chips" id="chips-now"></div>
           </div>
           <div class="picker-group">
-            <h3>New layouts <span class="tag">coming next</span></h3>
+            <h3>New layouts <span class="tag">new</span></h3>
             <div class="chips" id="chips-new"></div>
           </div>
         </div>
@@ -642,7 +642,7 @@
             <p class="host-title" id="host-title"></p>
             <p id="host-text"></p>
             <p class="host-cmd" id="host-cmd"></p>
-            <p class="host-soon" id="host-soon" hidden>Coming next. Not in 0.1.0 yet.</p>
+            <p class="host-soon" id="host-soon" hidden>New since 0.1.0. So far it has only been applied to the pretend iPhone, so rehearse with --dry-run first.</p>
           </div>
         </div>
       </div>
@@ -651,7 +651,7 @@
 
     <!-- COLOR WHEEL -->
     <section id="colors" class="section">
-      <h2 class="section-title reveal"><span>Rainbelle's color wheel</span> <span class="tag">coming next</span></h2>
+      <h2 class="section-title reveal"><span>Rainbelle's color wheel</span> <span class="tag">new</span></h2>
       <p class="section-lede reveal">The Rainbow layout needs to know what color each icon is. Your phone won't say, so Rainbelle finds out another way, and you get the final word.</p>
       <div class="wheel-panel panel reveal">
         <div class="wheel-how">
@@ -693,8 +693,10 @@
         <ul>
           <li>Your list of apps stays on your Mac, in <code>~/.organize-my-iphone</code>.</li>
           <li>The sorting model runs on your Mac. No cloud model is called.</li>
-          <li>The one network call sends app IDs (like <code>com.example.notes</code>) to Apple's App Store lookup, and nothing else.</li>
-          <li><code>--offline</code> skips that call completely.</li>
+          <li>The App Store lookup sends app IDs (like <code>com.example.notes</code>) to Apple, and nothing else.</li>
+          <li>Only if you add <code>--icon-colors-from-store</code>, it also downloads app icons from Apple's image servers to find their colors. They're looked at in memory and not kept.</li>
+          <li><code>--offline</code> skips both.</li>
+          <li>Your <code>--usage</code>, <code>--recent</code> and <code>--icon-colors</code> files are read on your Mac and never sent anywhere.</li>
         </ul>
       </div>
     </section>
@@ -741,7 +743,7 @@ swift run organize-my-iphone restore</code></pre>
       <svg class="status-c" aria-hidden="true"><use href="#c-sortle"/></svg>
       <div>
         <h2>Honest status</h2>
-        <p>Version 0.1.0 is a first cut. The logic has unit tests, and every change runs the whole pipeline against a pretend iPhone. It has been run from scan to restore on one real iPhone so far. Writing a layout relies on <code>cfgutil</code>, which behaves differently on different iOS versions, so use <code>--dry-run</code> first and keep your backups.</p>
+        <p>Version 0.1.0 is a first cut. The logic has unit tests, and every change runs the whole pipeline against a pretend iPhone. It has been run from scan to restore on one real iPhone so far. The ten newer layouts have so far been applied only to the pretend iPhone, though each passes the same checks before <code>apply</code> will write it. Writing a layout relies on <code>cfgutil</code>, which behaves differently on different iOS versions, so use <code>--dry-run</code> first and keep your backups.</p>
       </div>
     </section>
   </main>
