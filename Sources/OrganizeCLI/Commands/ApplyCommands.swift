@@ -13,8 +13,14 @@ struct ApplyCommand: AsyncParsableCommand {
 
     @OptionGroup var global: GlobalOptions
 
-    @Argument(help: "The proposal to apply: category-pages or folder-board.")
-    var scheme: SchemeOption
+    @Argument(
+        help: ArgumentHelp(
+            "The proposal to apply.",
+            discussion: "`organize-my-iphone schemes` describes each one.",
+            valueName: "scheme"
+        )
+    )
+    var scheme: OrganizationScheme
 
     @Flag(name: .long, help: "Do not ask for confirmation.")
     var yes = false
@@ -24,7 +30,7 @@ struct ApplyCommand: AsyncParsableCommand {
 
     func run() async throws {
         let workspace = global.makeWorkspace()
-        let planURL = workspace.planURL(for: scheme.scheme)
+        let planURL = workspace.planURL(for: scheme)
         guard workspace.exists(planURL) else {
             throw UserError("No \(scheme.rawValue) proposal found. Run `organize-my-iphone run` first.")
         }

@@ -8,23 +8,35 @@
 
 A command-line tool for macOS that reads the apps on a connected iPhone, sorts them into categories with a model that runs on your Mac, and proposes a tidier Home Screen. You review the proposals in a browser, apply the one you like, and can put the old layout back at any time.
 
-It offers two ways to organize:
+It offers twelve ways to organize:
 
 | Scheme | What you get |
 | --- | --- |
 | `category-pages` | Apps stay loose on pages, clustered by what they do: one cluster after another, or one category per page. |
 | `folder-board` | One named folder per category, gathered on as few pages as possible. |
+| `alphabetical` | A to Z across pages, or one folder per letter with `--letter-folders`. |
+| `most-used` | Your most-used apps on page 1, the least-used at the back. |
+| `time-of-day` | A Morning page (news, health), a Work day page, an Evening page (streaming, games) and Anytime. |
+| `verb-folders` | Folders named for what you do: Talk, Watch, Listen, Make, Buy, Go, Track, Read, Play, Work. |
+| `rainbow` | Pages sorted by each icon's main color. |
+| `thumb-reach` | Most-used apps in the bottom rows, where your thumb reaches. |
+| `places` | Home, Commute, Office, Travel, Gym and Everywhere pages, ready to pair with Focus modes. |
+| `new-and-review` | Newest apps on page 1 for a trial run, apps you no longer use on a Review page. |
+| `essentials` | One clean page of essentials. Everything else goes in folders on pages you can hide. |
+| `life-areas` | Work, Money, Health, Family, Learning, Play and Everyday pages. |
+
+`cfgutil` cannot tell how often you use an app, when you installed it, or what its icon looks like. The layouts that need those facts read them from optional files you write (`--usage`, `--recent`, `--icon-colors`). Without the files they fall back to your current icon order or put apps under "No color data", and they say so. [docs/layouts.md](docs/layouts.md) covers each layout and the file formats.
 
 ## Status
 
-Version 0.1.0 is a first cut. The logic is covered by unit tests, and CI runs the whole pipeline against a fake iPhone. It has been run end to end (scan, apply and restore) against one real iPhone so far. Reading the phone is low risk. Writing a layout back relies on `cfgutil set-icon-layout`, which is known to behave differently across iOS versions, so use `apply --dry-run` first and keep the backups the tool makes.
+Version 0.1.0 is a first cut. The logic is covered by unit tests, and CI runs the whole pipeline against a fake iPhone. It has been run end to end (scan, apply and restore) against one real iPhone so far. The ten layouts added after 0.1.0 (alphabetical through life-areas) have so far been applied only to the fake iPhone in `make demo`; each passes the same checks before `apply` will write it. Reading the phone is low risk. Writing a layout back relies on `cfgutil set-icon-layout`, which is known to behave differently across iOS versions, so use `apply --dry-run` first and keep the backups the tool makes.
 
 ## How it works
 
 1. **Scan.** Apple Configurator's `cfgutil` lists the installed apps and the current icon layout over USB. The layout is backed up straight away.
 2. **Enrich.** Apple's public iTunes Lookup API supplies each app's App Store genre and description. Skip this with `--offline`.
 3. **Classify.** Built-in rules place the apps they are sure about (Apple's own, and apps whose store genre settles it). A local model decides the rest: Ollama if it is running, otherwise Apple's on-device model. With no model, rules place everything.
-4. **Plan and preview.** Both schemes are built, checked against iOS limits, and written to an HTML page next to your current layout.
+4. **Plan and preview.** All twelve layouts are built, checked against iOS limits, and written to an HTML page next to your current layout.
 5. **Apply.** Only when you ask. The current layout is backed up first, and `restore` puts it back.
 
 Every step shows a live timer. The target is under 2 minutes from scan to preview for a phone with 1,000 apps, and under 5 minutes to apply; [docs/architecture.md](docs/architecture.md#performance-budget) has the budget and what it rests on.
@@ -71,6 +83,7 @@ No iPhone handy? `make demo` runs everything against a fake one.
 | `enrich` | Looks up App Store genre and description | No |
 | `classify` | Sorts apps into categories | No |
 | `plan` | Builds layout proposals | No |
+| `schemes` | Lists the layouts and the data each one uses | No |
 | `preview` | Writes the HTML comparison page | No |
 | `apply <scheme>` | Writes a proposal to the phone, after a backup and a confirmation | **Writes** |
 | `restore` | Puts a backed-up layout back | **Writes** |
@@ -84,12 +97,14 @@ Full options are in [docs/usage.md](docs/usage.md), or run any command with `--h
 - A proposal is refused if it would drop an icon, duplicate one, or break an iOS limit (24 icons per page, 4 in the dock, 9 per folder page, 15 pages).
 - The dock is never rearranged.
 - Web clips and anything the tool does not recognize are carried over, not discarded.
+- No layout removes an app from the Home Screen. `essentials` keeps everything else in folders on pages you can hide in iOS.
 
 ## Privacy
 
 - The list of apps on your phone stays on your Mac, in `~/.organize-my-iphone` by default.
 - `enrich` sends bundle identifiers (for example `com.spotify.client`) to Apple's lookup service and nothing else. `--offline` skips it.
 - Classification runs locally. No cloud model is called.
+- The `--usage`, `--recent` and `--icon-colors` files are read on your Mac and never sent anywhere.
 
 ## Project layout
 
@@ -139,6 +154,7 @@ Dependabot keeps the Swift packages and GitHub Actions current.
 ## Documentation
 
 - [Usage](docs/usage.md)
+- [Layouts](docs/layouts.md) (the twelve schemes and their optional data files)
 - [Development](docs/development.md) (building, testing, the Makefile, CI)
 - [Architecture](docs/architecture.md)
 - [Product requirements](docs/prd.md)

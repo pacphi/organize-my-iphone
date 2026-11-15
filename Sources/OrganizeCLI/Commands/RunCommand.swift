@@ -6,7 +6,7 @@ import OrganizeCore
 struct RunCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "run",
-        abstract: "Scan the phone, classify its apps, build both proposals and write a preview. Changes nothing on the phone."
+        abstract: "Scan the phone, classify its apps, build every layout proposal and write a preview. Changes nothing on the phone."
     )
 
     @OptionGroup var global: GlobalOptions
@@ -21,6 +21,16 @@ struct RunCommand: AsyncParsableCommand {
 
     @Flag(name: .customLong("open"), help: "Open the preview in your browser when it is ready.")
     var openPreview = false
+
+    @Option(
+        name: .long,
+        help: ArgumentHelp(
+            "Build only this scheme. Repeat to build several. Default: all of them.",
+            discussion: "`organize-my-iphone schemes` describes each one.",
+            valueName: "scheme"
+        )
+    )
+    var scheme: [OrganizationScheme] = []
 
     func run() async throws {
         let stopwatch = Console.stopwatch()
@@ -52,13 +62,15 @@ struct RunCommand: AsyncParsableCommand {
             taxonomy: taxonomy,
             engine: engine
         )
+        let context = try layoutOptions.loadContext(records: records, apps: snapshot.layout.appBundleIDs)
         let plans = try await Pipeline.plan(
             workspace: workspace,
             snapshot: snapshot,
             records: records,
             classification: classification,
-            schemes: OrganizationScheme.allCases,
+            schemes: scheme.isEmpty ? OrganizationScheme.allCases : scheme,
             options: layoutOptions.planOptions,
+            context: context,
             taxonomy: taxonomy
         )
         let preview = try await Pipeline.preview(
@@ -66,7 +78,8 @@ struct RunCommand: AsyncParsableCommand {
             snapshot: snapshot,
             records: records,
             classification: classification,
-            plans: plans
+            plans: plans,
+            iconColors: context.iconColors
         )
         if openPreview {
             await Pipeline.open(preview)
@@ -74,8 +87,9 @@ struct RunCommand: AsyncParsableCommand {
 
         Console.say("")
         Console.say("Finished in \(stopwatch.elapsed()). Nothing on the phone has changed.")
-        Console.say("When you have picked a proposal:")
-        Console.say("  organize-my-iphone apply category-pages")
-        Console.say("  organize-my-iphone apply folder-board")
+        Console.say("When you have picked a proposal, check it and apply it:")
+        Console.say("  organize-my-iphone apply <scheme> --dry-run")
+        Console.say("  organize-my-iphone apply <scheme>")
+        Console.say("Schemes built: \(plans.map { $0.scheme.rawValue }.joined(separator: ", "))")
     }
 }

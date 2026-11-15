@@ -19,8 +19,7 @@ public struct MetadataCache: Codable, Hashable, Sendable {
 ///       scan.json                   what was read from the phone
 ///       metadata.json               App Store lookups (cache)
 ///       classification.json         category per app
-///       plan-category-pages.json    proposal, scheme 1
-///       plan-folder-board.json      proposal, scheme 2
+///       plan-<scheme>.json          one proposal per layout, e.g. plan-folder-board.json
 ///       preview.html                visual comparison
 ///       backups/icon-layout-*.json  every layout read from the phone, in cfgutil format
 ///

@@ -309,6 +309,7 @@ enum Pipeline {
         classification: ClassificationSet,
         schemes: [OrganizationScheme],
         options: PlanOptions,
+        context: PlanContext,
         taxonomy: Taxonomy,
         now: Date = Date()
     ) async throws -> [OrganizationPlan] {
@@ -323,6 +324,7 @@ enum Pipeline {
                     names: names,
                     taxonomy: taxonomy,
                     options: options,
+                    context: context,
                     now: now
                 )
                 try workspace.write(plan, to: workspace.planURL(for: scheme))
@@ -359,6 +361,7 @@ enum Pipeline {
         records: [AppRecord],
         classification: ClassificationSet?,
         plans: [OrganizationPlan],
+        iconColors: [String: RGBColor] = SignalFiles.iconColors(merging: [:]),
         now: Date = Date()
     ) async throws -> URL {
         let document = PreviewDocument(
@@ -367,7 +370,8 @@ enum Pipeline {
             names: AppCatalog.names(of: records),
             categories: classification?.categoriesByBundleID ?? [:],
             current: snapshot.layout,
-            plans: plans
+            plans: plans,
+            iconColors: iconColors
         )
         try await Console.step("Write the preview page") {
             try workspace.writeText(HTMLPreviewRenderer.render(document), to: workspace.previewURL)

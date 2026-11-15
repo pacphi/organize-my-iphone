@@ -64,8 +64,12 @@ Sources/OrganizeCore/
   Classification/  Taxonomy, KnownApps, AppClassifier and TextCompletionModel protocols,
                    HeuristicClassifier, TieredClassification, LLMClassifier, prompt builder and
                    reply parser, AppCatalog
-  Planning/        OrganizationScheme, AppGroup, PlanOptions, OrganizationPlan, LayoutPlanner,
-                   Grouping, CategoryPagesPlanner, FolderBoardPlanner, PlanBuilder
+  Planning/        OrganizationScheme (12 layouts), AppGroup, PlanOptions, PlanContext,
+                   OrganizationPlan, LayoutPlanner, Grouping, PlanBuilder,
+                   CategoryPagesPlanner, FolderBoardPlanner (Planners.swift),
+                   the ten other planners (MorePlanners.swift), SectionPacker and
+                   RankedPacker (Packing.swift), BucketTable (Buckets.swift),
+                   RGBColor and ColorBand (IconColor.swift), SignalFiles
   Rendering/       HTMLPreviewRenderer, PlanReport, ElapsedTime and StatusLine (step timers)
 
 Sources/OrganizeAdapters/
@@ -132,6 +136,17 @@ Every `LayoutPlanner` must keep the dock unchanged and place every non-dock icon
 
 The validator knows the iOS limits through `GridSpec`: 4 columns by 6 rows per page, 4 dock slots, 9 icons per folder page, 15 pages.
 
+### Layouts that need more than a category
+
+Some layouts need facts `cfgutil` cannot read: how much each app is used, when it was installed, and its icon color. Planners get these through `PlanContext`, which the CLI fills from optional files (`--usage`, `--recent`, `--icon-colors`) parsed by `SignalFiles`, plus a built-in color table for Apple's apps in `KnownApps.iconColors`. The core never reads the files itself. When a fact is missing, the planner uses a stand-in (the current icon order for usage, the end of the layout for newest) and says so in the plan's `notes`, which the terminal summary and the preview show.
+
+Two packers keep loose-page layouts inside the 15-page limit:
+
+- `SectionPacker` lays out titled sections, such as categories, letters, color bands or the buckets of a `BucketTable`. When pages run out it folds the largest group into a folder, then the next largest, until the plan fits.
+- `RankedPacker` lays out apps in rank order, such as by usage. When pages run out the lowest-ranked apps go into category folders on the last pages.
+
+`BucketTable` maps the standard categories onto a layout's buckets (time of day, verbs, places, life areas). A test checks that every standard category is mapped on purpose; categories from a custom taxonomy go to each table's fallback bucket.
+
 ### The phone is only changed deliberately
 
 `apply` rereads the phone, validates the saved plan against what is there now, shows the size of the change, saves a backup, and asks. `restore` does the same in reverse. There is no code path that writes to the phone without those steps.
@@ -170,7 +185,7 @@ Every step is timed on screen (see `LiveStatus`), so a run that misses the budge
 | A model backend | Conform to `TextCompletionModel` in `OrganizeAdapters/Intelligence`, and offer it in `Pipeline.chooseEngine`. |
 | A classifier that is not a language model | Conform to `AppClassifier`. |
 | A device transport | Conform to `DeviceClient`. |
-| A layout scheme | Add a case to `OrganizationScheme`, write a `LayoutPlanner`, register it in `PlanBuilder.planner(for:)`. The shared planner tests then cover its guarantees automatically. |
+| A layout scheme | Add a case to `OrganizationScheme` (with its `title`, `summary` and `dataNote`), write a `LayoutPlanner`, register it in `PlanBuilder.planner(for:)`. The CLI, `schemes`, `apply` and the preview pick it up from `allCases`, and the shared planner tests cover its guarantees on a small phone and a 400-app phone. If it maps categories to buckets, add a `BucketTable` and list it in the bucket-coverage test. |
 | iPad support | Pass a different `GridSpec`. |
 
 ## Testing

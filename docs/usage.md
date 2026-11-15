@@ -37,9 +37,9 @@ sudo install "$(swift build -c release --show-bin-path)/organize-my-iphone" /usr
 organize-my-iphone run --open
 ```
 
-This scans the phone, looks apps up in the App Store, classifies them, builds both proposals, and opens a preview page. **Nothing on the phone changes.**
+This scans the phone, looks apps up in the App Store, classifies them, builds all twelve layout proposals, and opens a preview page. **Nothing on the phone changes.** [layouts.md](layouts.md) describes each layout.
 
-The terminal shows each proposal's groups and how many icons would move. The preview page shows your current Home Screen and each proposal page by page.
+The terminal shows each proposal's groups and how many icons would move. The preview page shows your current Home Screen and each proposal page by page, with a link to each proposal at the top and notes on any stand-in data it used.
 
 While it runs, each step shows a spinner and a count of elapsed seconds that updates in place, then leaves a line with its total:
 
@@ -77,6 +77,12 @@ organize-my-iphone classify --engine ollama --model <model-name>
 # Rebuild the proposals with different layout rules
 organize-my-iphone plan --one-page-per-category
 organize-my-iphone plan --scheme folder-board --min-folder-size 3
+
+# Tell the usage-based layouts how you really use your apps
+organize-my-iphone plan --usage ~/my-usage.txt --scheme most-used --scheme essentials
+
+# Build two layouts only
+organize-my-iphone plan --scheme alphabetical --scheme rainbow --icon-colors ~/colors.json
 
 # Refresh the page
 organize-my-iphone preview --open
@@ -124,16 +130,25 @@ Scan, enrich, classify, plan and preview.
 | `--ollama-url <url>` | Ollama server. Default `http://127.0.0.1:11434`. |
 | `--batch-size <n>` | Apps per model request. Default 25 for Ollama, 8 for Apple's model. |
 | `--thorough` | Ask the model about every app, not only the ones the built-in rules are unsure about. Slower: expect several times the classification time. |
+| `--scheme <scheme>` | Build only this layout. Repeat to build several. Default: all twelve. |
 | `--one-page-per-category` | Category pages: start each category on a new page. |
-| `--min-folder-size <n>` | Folder board: smaller categories stay loose. Default 2. |
+| `--min-folder-size <n>` | Folder layouts: smaller groups stay loose. Default 2. |
+| `--letter-folders` | Alphabetical: one folder per letter. |
+| `--essentials <n>` | Essentials: apps on the essentials page. Default 12. |
+| `--new-count <n>` | New and review: apps on the New page. Default 24. |
+| `--usage <file>` | Apps, most-used first. Used by most-used, thumb-reach, essentials and new-and-review. |
+| `--recent <file>` | Apps, newest install first. Used by new-and-review. |
+| `--icon-colors <file>` | JSON of icon colors. Used by rainbow and the preview. |
+
+[layouts.md](layouts.md) explains each layout, the file formats, and what each layout does without the files.
 
 ### `scan`, `enrich`, `classify`, `plan`, `preview`
 
-The individual steps of `run`. `enrich` accepts `--country` and `--refresh` (ignore the cache). `classify` accepts the engine options listed under `run`. `plan` accepts the layout options, plus `--scheme` to build only one proposal. `preview` accepts `--open`.
+The individual steps of `run`. `enrich` accepts `--country` and `--refresh` (ignore the cache). `classify` accepts the engine options listed under `run`. `plan` accepts the layout options, including `--scheme`. `preview` accepts `--open` and the three data files (`--usage`, `--recent`, `--icon-colors`); only `--icon-colors` changes what it shows, by tinting icons.
 
 ### `apply <scheme>`
 
-`<scheme>` is `category-pages` or `folder-board`.
+`<scheme>` is one of `category-pages`, `folder-board`, `alphabetical`, `most-used`, `time-of-day`, `verb-folders`, `rainbow`, `thumb-reach`, `places`, `new-and-review`, `essentials` or `life-areas`. The plan must have been built by `run` or `plan` first.
 
 | Option | Meaning |
 | --- | --- |
@@ -147,6 +162,10 @@ The individual steps of `run`. `enrich` accepts `--country` and `--refresh` (ign
 | `--backup <file>` | Restore this backup instead of the most recent one. |
 | `--list` | List backups and stop. |
 | `--yes` | Do not ask for confirmation. |
+
+### `schemes`
+
+Lists every layout, one line on what it looks like, and the data it uses.
 
 ### `doctor`
 
@@ -205,7 +224,7 @@ All in the workspace folder:
 | `scan.json` | Device, installed apps and layout from the last scan |
 | `metadata.json` | Cached App Store lookups |
 | `classification.json` | Category, confidence and source for each app |
-| `plan-category-pages.json`, `plan-folder-board.json` | The proposals |
+| `plan-<scheme>.json` | The proposals, one file per layout, such as `plan-rainbow.json` |
 | `preview.html` | The comparison page |
 | `backups/icon-layout-<time>-scan.json` | Layout at each scan |
 | `backups/icon-layout-<time>-before-apply.json` | Layout just before each apply or restore |
@@ -237,5 +256,7 @@ Backups are in `cfgutil`'s own format. In an emergency you can restore one witho
 | Classification takes minutes | See "How long it takes" above. The step's line shows batches done and time left. |
 | `Ollama not used: …` | Ollama is not running, or has no chat model. Open the Ollama app, or `ollama pull` a model. |
 | `This proposal cannot be applied as it stands` | Apps changed since the scan, or the plan needs more than 15 pages. Run `run` again; drop `--one-page-per-category` if you used it. |
+| A layout's notes say it used your current icon order | You gave no `--usage` (or `--recent`) file. See [layouts.md](layouts.md#the-extra-data-and-what-happens-without-it). |
+| `rainbow` puts most apps under "No color data" | Only Apple's apps have built-in colors. Add an `--icon-colors` file. |
 | The layout did not change after `apply` | Some iOS versions ignore or partly apply layouts. Run `restore`, and note your iOS version in an issue. |
 | Icons are on unexpected pages after `apply` | Widgets take grid space the tool cannot see, so iOS may reflow a page. Rearrange by hand or `restore`. |

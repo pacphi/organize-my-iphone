@@ -41,6 +41,7 @@ Code style
 
 Run
   doctor     Check cfgutil, the connected iPhone and local models
+  schemes    List the layout schemes and the data each one uses
   run        Run the tool with ARGS, e.g. make run ARGS="run --open"
 ```
 
@@ -61,6 +62,7 @@ The screen ends with the variables you can set, their current values, and a few 
 | `make lint` | `swift format lint --recursive Sources Tests Package.swift` | To see style drift. Reports only. |
 | `make format` | `swift format --in-place --recursive Sources Tests Package.swift` | To fix style drift. Rewrites files. |
 | `make doctor` | `swift run organize-my-iphone doctor` | To check `cfgutil`, the phone and local models. |
+| `make schemes` | `swift run organize-my-iphone schemes` | To see the twelve layouts and the data each one uses. |
 | `make run` | `swift run organize-my-iphone $(ARGS)` | To run any command of the tool from source. |
 
 ### Variables
@@ -131,7 +133,7 @@ Recipe lines must start with a tab, not spaces.
 | --- | --- |
 | `Tests/OrganizeCoreTests` | The logic: JSON handling, the layout codec, validation, classification, planning, rendering. No fakes needed, because the core does no I/O. |
 | `Tests/OrganizeAdaptersTests` | The adapters, with processes and HTTP replaced by fakes, plus one test that drives the real subprocess path through `Tests/Fixtures/fake-cfgutil`. |
-| `scripts/demo.sh` | The built tool end to end: scan, classify, plan, preview, apply and restore against the fake phone, with checks on the results. |
+| `scripts/demo.sh` | The built tool end to end: scan, classify, plan all twelve layouts (with sample usage and icon-color files), preview, a dry-run apply of every layout, then a real apply and restore against the fake phone, with checks on the results. |
 
 Run one suite or one test with SwiftPM's filter:
 

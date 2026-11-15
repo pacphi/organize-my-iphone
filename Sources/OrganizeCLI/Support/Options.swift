@@ -58,19 +58,8 @@ enum EngineOption: String, ExpressibleByArgument, CaseIterable {
     case apple
 }
 
-enum SchemeOption: String, ExpressibleByArgument, CaseIterable {
-    case categoryPages = "category-pages"
-    case folderBoard = "folder-board"
-
-    var scheme: OrganizationScheme {
-        switch self {
-        case .categoryPages:
-            return .categoryPages
-        case .folderBoard:
-            return .folderBoard
-        }
-    }
-}
+/// Layout schemes are named on the command line by their identifiers, such as `folder-board`.
+extension OrganizationScheme: ExpressibleByArgument {}
 
 struct ClassifyOptions: ParsableArguments {
     @Option(name: .long, help: "How to classify apps: auto, heuristic, ollama or apple.")
@@ -96,10 +85,110 @@ struct LayoutOptions: ParsableArguments {
     @Flag(name: .long, help: "Category pages: start every category on a new page instead of filling pages.")
     var onePagePerCategory = false
 
-    @Option(name: .long, help: "Folder board: categories smaller than this stay loose instead of getting a folder.")
+    @Option(name: .long, help: "Folder layouts: groups smaller than this stay loose instead of getting a folder.")
     var minFolderSize: Int = 2
 
+    @Flag(name: .long, help: "Alphabetical: one folder per letter instead of loose pages.")
+    var letterFolders = false
+
+    @Option(name: .long, help: "Essentials: how many apps go on the essentials page (1 to 24).")
+    var essentials: Int = 12
+
+    @Option(name: .long, help: "New and review: how many of the newest apps go on the first page. Default: one page.")
+    var newCount: Int?
+
+    @Option(
+        name: .long,
+        help: ArgumentHelp(
+            "A text file of apps, most-used first, one per line (bundle ID or name).",
+            discussion: "Used by most-used, thumb-reach, essentials and new-and-review. Without it, your "
+                + "current icon order stands in for usage. Screen Time on the phone shows the order to copy.",
+            valueName: "file"
+        )
+    )
+    var usage: String?
+
+    @Option(
+        name: .long,
+        help: ArgumentHelp(
+            "A text file of apps, newest install first, one per line (bundle ID or name).",
+            discussion: "Used by new-and-review. Without it, the apps at the end of your current layout are "
+                + "treated as the newest.",
+            valueName: "file"
+        )
+    )
+    var recent: String?
+
+    @Option(
+        name: .long,
+        help: ArgumentHelp(
+            "A JSON file of icon colors, such as {\"com.spotify.client\": \"#1DB954\"}.",
+            discussion: "Used by rainbow, on top of built-in colors for Apple's apps.",
+            valueName: "file"
+        )
+    )
+    var iconColors: String?
+
     var planOptions: PlanOptions {
-        PlanOptions(onePagePerCategory: onePagePerCategory, minimumFolderSize: max(1, minFolderSize))
+        PlanOptions(
+            onePagePerCategory: onePagePerCategory,
+            minimumFolderSize: max(1, minFolderSize),
+            letterFolders: letterFolders,
+            essentialsCount: min(max(1, essentials), GridSpec.iPhone.pageCapacity),
+            newCount: newCount.map { max(0, $0) }
+        )
+    }
+
+    /// Reads the optional usage, install-order and color files. Lines or entries that match no
+    /// app are reported, not fatal.
+    func loadContext(records: [AppRecord], apps: [String]) throws -> PlanContext {
+        let names = AppCatalog.names(of: records)
+        var context = PlanContext(names: names)
+
+        func readText(_ path: String, flag: String) throws -> (url: URL, text: String) {
+            let url = URL(fileURLWithPath: GlobalOptions.expand(path))
+            do {
+                return (url, try String(contentsOf: url, encoding: .utf8))
+            } catch {
+                throw UserError("Could not read the \(flag) file at \(url.path): \(error.localizedDescription)")
+            }
+        }
+        func report(_ unmatched: [String], flag: String) {
+            guard !unmatched.isEmpty else {
+                return
+            }
+            let shown = unmatched.prefix(5).joined(separator: ", ")
+            let more = unmatched.count > 5 ? ", and \(unmatched.count - 5) more" : ""
+            Console.warn("\(unmatched.count) entry(ies) in the \(flag) file match no app on the phone: \(shown)\(more)")
+        }
+
+        if let usage, !usage.isEmpty {
+            let file = try readText(usage, flag: "--usage")
+            let ranking = SignalFiles.parseRanking(file.text, apps: apps, names: names)
+            report(ranking.unmatched, flag: "--usage")
+            Console.say("✓ Usage order: \(ranking.order.count) app(s) from \(file.url.lastPathComponent)")
+            context.usage = ranking.order
+        }
+        if let recent, !recent.isEmpty {
+            let file = try readText(recent, flag: "--recent")
+            let ranking = SignalFiles.parseRanking(file.text, apps: apps, names: names)
+            report(ranking.unmatched, flag: "--recent")
+            Console.say("✓ Install order: \(ranking.order.count) app(s) from \(file.url.lastPathComponent)")
+            context.recent = ranking.order
+        }
+        var colors: [String: RGBColor] = [:]
+        if let iconColors, !iconColors.isEmpty {
+            let file = try readText(iconColors, flag: "--icon-colors")
+            do {
+                let parsed = try SignalFiles.parseColors(Data(file.text.utf8), apps: apps, names: names)
+                report(parsed.unmatched, flag: "--icon-colors")
+                Console.say("✓ Icon colors: \(parsed.colors.count) app(s) from \(file.url.lastPathComponent)")
+                colors = parsed.colors
+            } catch {
+                throw UserError("Could not read the --icon-colors file at \(file.url.path): \(error)")
+            }
+        }
+        context.iconColors = SignalFiles.iconColors(merging: colors)
+        return context
     }
 }

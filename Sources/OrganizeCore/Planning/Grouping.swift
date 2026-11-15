@@ -58,6 +58,8 @@ struct PlanInput {
     var groups: [AppGroup]
     /// Non-dock items that are not apps (web clips and anything unrecognized).
     var leftovers: [IconItem]
+    /// Every non-dock app, once, in the order it appears on the phone now.
+    var currentOrder: [String]
 
     init(current: IconLayout, groups: [AppGroup], fallbackCategory: String) {
         let dock = Set(current.dockAppBundleIDs)
@@ -107,5 +109,17 @@ struct PlanInput {
 
         self.groups = cleaned
         self.leftovers = leftovers
+        self.currentOrder = remaining
+    }
+
+    /// Bundle identifier → the category of the group it is in.
+    var categoryOf: [String: String] {
+        var result: [String: String] = [:]
+        for group in groups {
+            for bundleID in group.bundleIDs {
+                result[bundleID] = group.category
+            }
+        }
+        return result
     }
 }
