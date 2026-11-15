@@ -18,6 +18,7 @@ public struct MetadataCache: Codable, Hashable, Sendable {
 ///     <workspace>/
 ///       scan.json                   what was read from the phone
 ///       metadata.json               App Store lookups (cache)
+///       store-icon-colors.json      main color of each App Store icon (cache, opt-in)
 ///       classification.json         category per app
 ///       plan-<scheme>.json          one proposal per layout, e.g. plan-folder-board.json
 ///       preview.html                visual comparison
@@ -46,6 +47,8 @@ public struct Workspace: Sendable {
     public var metadataURL: URL { root.appendingPathComponent("metadata.json") }
     public var classificationURL: URL { root.appendingPathComponent("classification.json") }
     public var previewURL: URL { root.appendingPathComponent("preview.html") }
+    public var colorWheelURL: URL { root.appendingPathComponent("colors.html") }
+    public var storeIconColorsURL: URL { root.appendingPathComponent("store-icon-colors.json") }
     public var backupsDirectory: URL { root.appendingPathComponent("backups") }
 
     public func planURL(for scheme: OrganizationScheme) -> URL {

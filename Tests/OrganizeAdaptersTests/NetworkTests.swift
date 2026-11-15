@@ -9,7 +9,8 @@ struct AppStoreLookupTests {
     static let reply = """
         {"resultCount":2,"results":[
           {"bundleId":"com.a","trackName":"Alpha","primaryGenreName":"Finance","sellerName":"Alpha Inc.",
-           "description":"Track your spending.\\nSecond line."},
+           "description":"Track your spending.\\nSecond line.",
+           "artworkUrl100":"https://is1-ssl.mzstatic.com/image/a/100x100bb.jpg"},
           {"trackName":"No bundle identifier"},
           {"bundleId":"com.b","trackName":"Beta","primaryGenreName":"Games"}
         ]}
@@ -34,6 +35,8 @@ struct AppStoreLookupTests {
         #expect(items[0].summary == "Track your spending. Second line.")
         #expect(items[0].seller == "Alpha Inc.")
         #expect(items[1].summary == nil)
+        #expect(items[0].artworkURL == "https://is1-ssl.mzstatic.com/image/a/100x100bb.jpg")
+        #expect(items[1].artworkURL == nil)
     }
 
     @Test func longDescriptionsAreCutShort() {

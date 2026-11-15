@@ -100,8 +100,12 @@ Set `FAKE_CFGUTIL_STATE=<file>` so the fake phone remembers a layout written by 
 - The only network call is the optional App Store lookup, which sends bundle identifiers to Apple. `--offline`
   skips it. Do not add other network calls.
 - Classification runs locally. Do not add cloud model backends; Private Cloud Compute is deliberately not used.
-- The `--usage`, `--recent` and `--icon-colors` files are read locally and never sent anywhere. Downloading App Store
-  icon artwork for the rainbow layout would be a new network call; do not add it without the owner's approval.
+- Do not add other network calls without the owner's approval.
+- The `--usage`, `--recent` and `--icon-colors` files are read locally and never sent anywhere.
+- The only network calls are the App Store lookup (bundle identifiers to `itunes.apple.com`) and, only with the
+  opt-in `--icon-colors-from-store`, icon downloads from Apple's image hosts (`*.mzstatic.com`, enforced by
+  `IconColorSampler.isAllowed`). `--offline` skips both. Images are processed in memory and not kept.
+- `preview.html` stays script-free. `colors.html` (the color wheel) may run inline script but must load nothing.
 
 ## Code style and tests
 

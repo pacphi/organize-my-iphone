@@ -81,6 +81,67 @@ enum Pipeline {
         )
     }
 
+    // MARK: Icon colors
+
+    static func loadStoreColors(_ workspace: Workspace) -> StoreIconColors {
+        (try? workspace.read(StoreIconColors.self, from: workspace.storeIconColorsURL)) ?? StoreIconColors()
+    }
+
+    /// Downloads the App Store icon of every app that has no color yet and finds its main color.
+    /// Opt-in: contacts Apple's image server. Results are cached in the workspace.
+    static func sampleStoreIconColors(
+        workspace: Workspace,
+        snapshot: ScanSnapshot,
+        country: String,
+        refresh: Bool
+    ) async throws {
+        var store = refresh ? StoreIconColors() : loadStoreColors(workspace)
+        var cache = loadMetadata(workspace)
+        let done = Set(store.colors.keys).union(store.failed)
+        var seen: Set<String> = []
+        let wanted = snapshot.layout.appBundleIDs.filter { !done.contains($0) && seen.insert($0).inserted }
+        guard !wanted.isEmpty else {
+            Console.say("✓ Icon colors from the App Store are already cached")
+            return
+        }
+
+        // Caches made before icon links were kept need one more lookup for those apps.
+        let needLinks = wanted.filter { cache.entries[$0] != nil && cache.entries[$0]?.artworkURL == nil }
+        if !needLinks.isEmpty {
+            let found = try await Console.step("Look up icon links for \(needLinks.count) app(s)") {
+                try await AppStoreLookupClient(country: country).lookup(bundleIDs: needLinks)
+            }
+            for (bundleID, metadata) in found {
+                cache.entries[bundleID] = metadata
+            }
+            try workspace.write(cache, to: workspace.metadataURL)
+        }
+
+        var artwork: [String: String] = [:]
+        for bundleID in wanted {
+            if let link = cache.entries[bundleID]?.artworkURL {
+                artwork[bundleID] = link
+            }
+        }
+        guard !artwork.isEmpty else {
+            Console.say("- No App Store icon links for these apps. Run `enrich` first.")
+            return
+        }
+
+        let jobs = artwork
+        let colors = try await Console.step("Find the main color of \(jobs.count) App Store icon(s)") {
+            await IconColorSampler().sample(artwork: jobs) { finished, total in
+                Console.detail("\(finished)/\(total) icons")
+            }
+        }
+        for (bundleID, color) in colors {
+            store.colors[bundleID] = color.hex
+        }
+        store.failed.append(contentsOf: jobs.keys.filter { colors[$0] == nil }.sorted())
+        try workspace.write(store, to: workspace.storeIconColorsURL)
+        Console.say("  Found colors for \(colors.count) of \(jobs.count). Check them on colors.html after `preview`.")
+    }
+
     // MARK: Classify
 
     /// What will sort the apps into categories, decided up front so a model can load in the
@@ -361,7 +422,7 @@ enum Pipeline {
         records: [AppRecord],
         classification: ClassificationSet?,
         plans: [OrganizationPlan],
-        iconColors: [String: RGBColor] = SignalFiles.iconColors(merging: [:]),
+        colors: IconColorSet = IconColorSet(),
         now: Date = Date()
     ) async throws -> URL {
         let document = PreviewDocument(
@@ -371,12 +432,24 @@ enum Pipeline {
             categories: classification?.categoriesByBundleID ?? [:],
             current: snapshot.layout,
             plans: plans,
-            iconColors: iconColors
+            iconColors: colors.merged,
+            colorPage: workspace.colorWheelURL.lastPathComponent
         )
-        try await Console.step("Write the preview page") {
+        let wheel = ColorWheelRenderer.render(
+            deviceName: snapshot.device.name,
+            apps: ColorWheelRenderer.apps(
+                bundleIDs: snapshot.layout.appBundleIDs,
+                names: AppCatalog.names(of: records),
+                colors: colors
+            ),
+            fileColors: colors.file
+        )
+        try await Console.step("Write the preview page and the icon-color wheel") {
             try workspace.writeText(HTMLPreviewRenderer.render(document), to: workspace.previewURL)
+            try workspace.writeText(wheel, to: workspace.colorWheelURL)
         }
         Console.say("  \(workspace.previewURL.path)")
+        Console.say("  \(workspace.colorWheelURL.path)")
         return workspace.previewURL
     }
 

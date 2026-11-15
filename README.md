@@ -25,7 +25,7 @@ It offers twelve ways to organize:
 | `essentials` | One clean page of essentials. Everything else goes in folders on pages you can hide. |
 | `life-areas` | Work, Money, Health, Family, Learning, Play and Everyday pages. |
 
-`cfgutil` cannot tell how often you use an app, when you installed it, or what its icon looks like. The layouts that need those facts read them from optional files you write (`--usage`, `--recent`, `--icon-colors`). Without the files they fall back to your current icon order or put apps under "No color data", and they say so. [docs/layouts.md](docs/layouts.md) covers each layout and the file formats.
+`cfgutil` cannot tell how often you use an app, when you installed it, or what its icon looks like. The layouts that need those facts read them from optional files you write (`--usage`, `--recent`, `--icon-colors`). Without the files they fall back to your current icon order or put apps under "No color data", and they say so. For icon colors there is also an opt-in shortcut: `--icon-colors-from-store` finds each icon's main color from its App Store artwork, and a color-wheel page (`colors.html`) lets you fix any match by clicking. [docs/layouts.md](docs/layouts.md) covers each layout and the file formats.
 
 ## Status
 
@@ -103,6 +103,7 @@ Full options are in [docs/usage.md](docs/usage.md), or run any command with `--h
 
 - The list of apps on your phone stays on your Mac, in `~/.organize-my-iphone` by default.
 - `enrich` sends bundle identifiers (for example `com.spotify.client`) to Apple's lookup service and nothing else. `--offline` skips it.
+- Only if you pass `--icon-colors-from-store`, the tool also downloads each app's icon from Apple's image server (`mzstatic.com`) to find its color. The images are read on your Mac and not kept. `--offline` skips it.
 - Classification runs locally. No cloud model is called.
 - The `--usage`, `--recent` and `--icon-colors` files are read on your Mac and never sent anywhere.
 

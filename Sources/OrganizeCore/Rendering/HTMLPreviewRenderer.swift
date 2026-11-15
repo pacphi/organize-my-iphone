@@ -12,6 +12,8 @@ public struct PreviewDocument: Sendable {
     public var plans: [OrganizationPlan]
     /// Bundle identifier → main icon color. Known colors tint icons; the rest use a category tint.
     public var iconColors: [String: RGBColor]
+    /// A sibling page for checking and fixing icon colors, linked from the top when set.
+    public var colorPage: String?
 
     public init(
         deviceName: String,
@@ -20,7 +22,8 @@ public struct PreviewDocument: Sendable {
         categories: [String: String],
         current: IconLayout,
         plans: [OrganizationPlan],
-        iconColors: [String: RGBColor] = [:]
+        iconColors: [String: RGBColor] = [:],
+        colorPage: String? = nil
     ) {
         self.deviceName = deviceName
         self.generatedAt = generatedAt
@@ -29,6 +32,7 @@ public struct PreviewDocument: Sendable {
         self.current = current
         self.plans = plans
         self.iconColors = iconColors
+        self.colorPage = colorPage
     }
 }
 
@@ -55,6 +59,12 @@ public enum HTMLPreviewRenderer {
             }
             html.append(links.joined(separator: " · "))
             html.append("</nav>")
+        }
+        if let colorPage = document.colorPage {
+            html.append(
+                "<p>Icon colors look wrong in the rainbow layout? "
+                    + "<a href=\"\(escape(colorPage))\">Check and fix them on the color wheel</a>.</p>"
+            )
         }
 
         html.append(

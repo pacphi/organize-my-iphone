@@ -378,7 +378,7 @@ struct MoreLayoutsTests {
     }
 
     @Test func builtInColorsCoverApplesAppsAndCanBeOverridden() {
-        let colors = SignalFiles.iconColors(merging: ["com.apple.Music": RGBColor(hex: "#000000")!])
+        let colors = IconColorSet(file: ["com.apple.Music": RGBColor(hex: "#000000")!]).merged
         #expect(colors["com.apple.mobilenotes"].map(ColorBand.of) == .yellow)
         #expect(colors["com.apple.Music"]?.hex == "#000000")
         for hex in KnownApps.iconColors.values {

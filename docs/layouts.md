@@ -19,7 +19,7 @@ Every layout follows the same rules:
 | `most-used` | Most-used apps on page 1, the least-used at the back | `--usage` |
 | `time-of-day` | Morning, Work day, Evening and Anytime pages | None |
 | `verb-folders` | Folders named for what you do: Talk, Watch, Listen, Make, Buy, Go, Track… | None |
-| `rainbow` | Pages sorted by each icon's main color | `--icon-colors` |
+| `rainbow` | Pages sorted by each icon's main color | `--icon-colors-from-store`, `--icon-colors` |
 | `thumb-reach` | Most-used apps in the bottom rows, where your thumb reaches | `--usage` |
 | `places` | Home, Commute, Office, Travel, Gym and Everywhere pages | None |
 | `new-and-review` | Newest apps on page 1, apps you no longer use on a Review page | `--recent`, `--usage` |
@@ -36,9 +36,11 @@ Every layout follows the same rules:
 | --- | --- | --- |
 | `--usage <file>` | Apps, most-used first, one per line | Your current icon order stands in for usage: page 1 counts as most-used. |
 | `--recent <file>` | Apps, newest install first, one per line | The apps at the end of your current layout are treated as the newest. That is a guess: it holds when new apps were added after your last icon and you have not moved them since. |
-| `--icon-colors <file>` | A JSON object from app to color | Only Apple's own apps have colors, from a built-in table. Other apps go in "No color data". |
+| `--icon-colors <file>` | A JSON object from app to color | Colors come from App Store icons if you have run `--icon-colors-from-store`, else only Apple's own apps have colors, from a built-in table. Other apps go in "No color data". |
 
 All three are read on your Mac and never sent anywhere. Pass them to `run`, `plan` or `preview`.
+
+Icon colors can also be found automatically. See [Icon colors](#icon-colors) below.
 
 ### Usage and install-order files
 
@@ -53,6 +55,26 @@ One app per line, by bundle identifier (`com.spotify.client`) or display name (`
 ```
 
 To build a usage file, open **Settings > Screen Time > See All App & Website Activity** on the phone and copy the order of the apps list. Apps you leave out count as least used. Lines that match no app on the phone are listed as a warning and otherwise ignored. When a line matches both a bundle identifier and another app's name, the bundle identifier wins.
+
+## Icon colors
+
+The rainbow layout needs each icon's main color. Colors come from three places, and a later one overrides an earlier one:
+
+1. **Built in.** Apple's own apps, from a table in the tool.
+2. **App Store icons (opt-in).** `organize-my-iphone enrich --icon-colors-from-store` (or `run --icon-colors-from-store`) downloads each app's icon from Apple's image server, shrinks it to 32 by 32 pixels on your Mac, and matches every pixel to a slice of the color wheel. The slice with the most pixels wins, and the icon's color is the average of those pixels. So a blue icon with a white logo comes out blue, and a white icon with a small red mark comes out white. Results are saved in `store-icon-colors.json` in the workspace, so each icon is fetched once. `--refresh` fetches them again.
+3. **Your file.** `--icon-colors <file>`, for anything you want to correct.
+
+This is the one opt-in network call besides the App Store lookup. It requests only the icon links the lookup returned, only from Apple's image hosts (`mzstatic.com`), and the images are not kept. `--offline` skips it.
+
+### Fixing colors on the color wheel
+
+`preview` (and `run`) also write `colors.html` next to the preview page, linked from its top. It shows a color wheel with the number of apps in each slice: eight hues around the outside and white, gray and black in the middle. Click a slice to list its apps. To move an app, click the slice it belongs in on its row. **Save icon-colors.json** downloads your changes, plus anything already in your `--icon-colors` file, and you rebuild with:
+
+```sh
+organize-my-iphone plan --icon-colors ~/Downloads/icon-colors.json
+```
+
+The page works offline. Unlike the preview, it runs a small script, because it is a tool you click in.
 
 ### Icon-colors file
 
@@ -147,7 +169,7 @@ With your own `--taxonomy`, categories these tables do not name go to the last b
 
 Apps are sorted into color bands: red, orange, yellow, green, teal, blue, purple, pink, then white, gray and black for pale or dark icons. Within a band they run by shade. Apps with no known color come last, under "No color data". The preview's notes say how many there are.
 
-Only Apple's own apps have built-in colors, so without an `--icon-colors` file most of a typical phone lands in "No color data".
+Only Apple's own apps have built-in colors. Run `enrich --icon-colors-from-store` once to color nearly everything else, then fix any odd matches on the [color wheel](#fixing-colors-on-the-color-wheel).
 
 ### `new-and-review`
 
@@ -172,5 +194,6 @@ To see only the essentials, hide the other pages on the phone: touch and hold th
 | `--new-count <n>` | new-and-review | Apps on the New page. Default one page (24). |
 | `--usage <file>` | most-used, thumb-reach, essentials, new-and-review | Usage order. |
 | `--recent <file>` | new-and-review | Install order. |
-| `--icon-colors <file>` | rainbow, and icon tints in the preview | Icon colors. |
+| `--icon-colors <file>` | rainbow, and icon tints in the preview | Icon colors that override the built-in and App Store ones. |
+| `--icon-colors-from-store` | rainbow (on `run` and `enrich`) | Find colors from App Store icons. Opt-in network call. |
 | `--scheme <scheme>` | all (`run` and `plan`) | Build only this layout. Repeat to build several. |

@@ -341,7 +341,7 @@ public struct RainbowPlanner: LayoutPlanner {
         if let missing = byBand[RainbowPlanner.noColor], !missing.isEmpty {
             notes.append(
                 "\(missing.count) app(s) have no known icon color and come last. "
-                    + "List them in an --icon-colors file to place them."
+                    + "Run enrich --icon-colors-from-store, or set them on colors.html."
             )
         }
         return PlannedLayout(

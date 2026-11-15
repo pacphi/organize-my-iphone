@@ -140,8 +140,12 @@ struct LayoutOptions: ParsableArguments {
     }
 
     /// Reads the optional usage, install-order and color files. Lines or entries that match no
-    /// app are reported, not fatal.
-    func loadContext(records: [AppRecord], apps: [String]) throws -> PlanContext {
+    /// app are reported, not fatal. `storeColors` are colors found earlier from App Store icons.
+    func loadContext(
+        records: [AppRecord],
+        apps: [String],
+        storeColors: [String: RGBColor] = [:]
+    ) throws -> (context: PlanContext, colors: IconColorSet) {
         let names = AppCatalog.names(of: records)
         var context = PlanContext(names: names)
 
@@ -188,7 +192,8 @@ struct LayoutOptions: ParsableArguments {
                 throw UserError("Could not read the --icon-colors file at \(file.url.path): \(error)")
             }
         }
-        context.iconColors = SignalFiles.iconColors(merging: colors)
-        return context
+        let colorSet = IconColorSet(store: storeColors, file: colors)
+        context.iconColors = colorSet.merged
+        return (context, colorSet)
     }
 }

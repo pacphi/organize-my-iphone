@@ -83,7 +83,8 @@ public enum OrganizationScheme: String, Codable, Sendable, CaseIterable {
             return "Uses --recent <file> (newest first) and --usage <file>. Without --recent, the apps at the end "
                 + "of your current layout are treated as the newest. Without --usage there is no Review page."
         case .rainbow:
-            return "Uses --icon-colors <file> plus built-in colors for Apple's apps. Apps with no color go last."
+            return "Uses colors from App Store icons (enrich --icon-colors-from-store), built-in colors for Apple's "
+                + "apps, and --icon-colors <file> to correct them. Fix matches on colors.html. Apps with no color go last."
         case .categoryPages, .folderBoard, .alphabetical, .timeOfDay, .verbFolders, .places, .lifeAreas:
             return nil
         }

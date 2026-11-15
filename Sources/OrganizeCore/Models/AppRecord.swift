@@ -37,19 +37,23 @@ public struct AppStoreMetadata: Codable, Hashable, Sendable {
     public var primaryGenre: String?
     public var summary: String?
     public var seller: String?
+    /// A link to the app's icon on Apple's image server. Absent in caches made before 0.2.
+    public var artworkURL: String?
 
     public init(
         bundleID: String,
         name: String? = nil,
         primaryGenre: String? = nil,
         summary: String? = nil,
-        seller: String? = nil
+        seller: String? = nil,
+        artworkURL: String? = nil
     ) {
         self.bundleID = bundleID
         self.name = name
         self.primaryGenre = primaryGenre
         self.summary = summary
         self.seller = seller
+        self.artworkURL = artworkURL
     }
 }
 

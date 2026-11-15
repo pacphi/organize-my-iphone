@@ -69,13 +69,16 @@ Sources/OrganizeCore/
                    CategoryPagesPlanner, FolderBoardPlanner (Planners.swift),
                    the ten other planners (MorePlanners.swift), SectionPacker and
                    RankedPacker (Packing.swift), BucketTable (Buckets.swift),
-                   RGBColor and ColorBand (IconColor.swift), SignalFiles
-  Rendering/       HTMLPreviewRenderer, PlanReport, ElapsedTime and StatusLine (step timers)
+                   RGBColor, ColorBand, DominantColor and IconColorSet (IconColor.swift),
+                   SignalFiles
+  Rendering/       HTMLPreviewRenderer, ColorWheelRenderer (colors.html), PlanReport,
+                   ElapsedTime and StatusLine (step timers)
 
 Sources/OrganizeAdapters/
   Device/          CommandRunning + SubprocessCommandRunner, DeviceClient, DeviceSelector,
                    CfgutilLocator, CfgutilParser, CfgutilDeviceClient
-  AppStore/        HTTPClient + URLSessionHTTPClient, AppStoreLookupClient
+  AppStore/        HTTPClient + URLSessionHTTPClient, AppStoreLookupClient,
+                   IconColorSampler + StoreIconColors (opt-in icon colors)
   Intelligence/    OllamaModel, AppleOnDeviceModel, AppleIntelligence
   Storage/         Workspace, MetadataCache
 
@@ -138,7 +141,7 @@ The validator knows the iOS limits through `GridSpec`: 4 columns by 6 rows per p
 
 ### Layouts that need more than a category
 
-Some layouts need facts `cfgutil` cannot read: how much each app is used, when it was installed, and its icon color. Planners get these through `PlanContext`, which the CLI fills from optional files (`--usage`, `--recent`, `--icon-colors`) parsed by `SignalFiles`, plus a built-in color table for Apple's apps in `KnownApps.iconColors`. The core never reads the files itself. When a fact is missing, the planner uses a stand-in (the current icon order for usage, the end of the layout for newest) and says so in the plan's `notes`, which the terminal summary and the preview show.
+Some layouts need facts `cfgutil` cannot read: how much each app is used, when it was installed, and its icon color. Planners get these through `PlanContext`, which the CLI fills from optional files (`--usage`, `--recent`, `--icon-colors`) parsed by `SignalFiles`, plus a built-in color table for Apple's apps in `KnownApps.iconColors` and, when the user opts in, colors found from App Store icons. `IconColorSet` layers the three (built-in, then store, then the user's file). `IconColorSampler` (adapters) downloads the artwork and turns it into pixels; `DominantColor` (core) picks the main color by matching pixels to slices of the color wheel; `ColorWheelRenderer` writes `colors.html`, where the user corrects matches. The core never reads the files itself. When a fact is missing, the planner uses a stand-in (the current icon order for usage, the end of the layout for newest) and says so in the plan's `notes`, which the terminal summary and the preview show.
 
 Two packers keep loose-page layouts inside the 15-page limit:
 
@@ -153,7 +156,7 @@ Two packers keep loose-page layouts inside the 15-page limit:
 
 ### Privacy by default
 
-The workspace defaults to `~/.organize-my-iphone`, outside any repository. The only network call is the optional App Store lookup, which sends bundle identifiers to Apple. Models run on the Mac.
+The workspace defaults to `~/.organize-my-iphone`, outside any repository. The network calls are the optional App Store lookup, which sends bundle identifiers to Apple, and, only with `--icon-colors-from-store`, downloads of the icons that lookup links to, restricted to Apple's image hosts. Models run on the Mac.
 
 ## Performance budget
 

@@ -139,12 +139,13 @@ Scan, enrich, classify, plan and preview.
 | `--usage <file>` | Apps, most-used first. Used by most-used, thumb-reach, essentials and new-and-review. |
 | `--recent <file>` | Apps, newest install first. Used by new-and-review. |
 | `--icon-colors <file>` | JSON of icon colors. Used by rainbow and the preview. |
+| `--icon-colors-from-store` | Download App Store icons and find their main colors, for rainbow. Opt-in network call to Apple's image server; skipped with `--offline`. |
 
 [layouts.md](layouts.md) explains each layout, the file formats, and what each layout does without the files.
 
 ### `scan`, `enrich`, `classify`, `plan`, `preview`
 
-The individual steps of `run`. `enrich` accepts `--country` and `--refresh` (ignore the cache). `classify` accepts the engine options listed under `run`. `plan` accepts the layout options, including `--scheme`. `preview` accepts `--open` and the three data files (`--usage`, `--recent`, `--icon-colors`); only `--icon-colors` changes what it shows, by tinting icons.
+The individual steps of `run`. `enrich` accepts `--country`, `--refresh` (ignore the cache) and `--icon-colors-from-store` (also find icon colors from App Store artwork; see [layouts.md](layouts.md#icon-colors)). `classify` accepts the engine options listed under `run`. `plan` accepts the layout options, including `--scheme`. `preview` accepts `--open` and the three data files (`--usage`, `--recent`, `--icon-colors`); only `--icon-colors` changes what it shows, by tinting icons. It also writes `colors.html`, the color-wheel page for checking and fixing icon colors.
 
 ### `apply <scheme>`
 
@@ -226,6 +227,8 @@ All in the workspace folder:
 | `classification.json` | Category, confidence and source for each app |
 | `plan-<scheme>.json` | The proposals, one file per layout, such as `plan-rainbow.json` |
 | `preview.html` | The comparison page |
+| `colors.html` | The color wheel, for checking and fixing icon colors |
+| `store-icon-colors.json` | Main colors found from App Store icons (only with `--icon-colors-from-store`) |
 | `backups/icon-layout-<time>-scan.json` | Layout at each scan |
 | `backups/icon-layout-<time>-before-apply.json` | Layout just before each apply or restore |
 
@@ -257,6 +260,7 @@ Backups are in `cfgutil`'s own format. In an emergency you can restore one witho
 | `Ollama not used: …` | Ollama is not running, or has no chat model. Open the Ollama app, or `ollama pull` a model. |
 | `This proposal cannot be applied as it stands` | Apps changed since the scan, or the plan needs more than 15 pages. Run `run` again; drop `--one-page-per-category` if you used it. |
 | A layout's notes say it used your current icon order | You gave no `--usage` (or `--recent`) file. See [layouts.md](layouts.md#the-extra-data-and-what-happens-without-it). |
-| `rainbow` puts most apps under "No color data" | Only Apple's apps have built-in colors. Add an `--icon-colors` file. |
+| `rainbow` puts most apps under "No color data" | Only Apple's apps have built-in colors. Run `enrich --icon-colors-from-store`, or add an `--icon-colors` file. |
+| An app is in the wrong color band | Open `colors.html`, click the right slice on its row, save, and pass the file with `--icon-colors`. |
 | The layout did not change after `apply` | Some iOS versions ignore or partly apply layouts. Run `restore`, and note your iOS version in an issue. |
 | Icons are on unexpected pages after `apply` | Widgets take grid space the tool cannot see, so iOS may reflow a page. Rearrange by hand or `restore`. |

@@ -34,10 +34,28 @@ struct EnrichCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Ignore the cache and look every app up again.")
     var refresh = false
 
+    @Flag(
+        name: .customLong("icon-colors-from-store"),
+        help: ArgumentHelp(
+            "Download each app's App Store icon and find its main color, for the rainbow layout.",
+            discussion: "Contacts Apple's image server (mzstatic.com) once per icon; results are cached. "
+                + "The images are read on this Mac and not kept."
+        )
+    )
+    var iconColorsFromStore = false
+
     func run() async throws {
         let workspace = global.makeWorkspace()
         let snapshot = try Pipeline.loadScan(workspace)
         try await Pipeline.enrich(workspace: workspace, snapshot: snapshot, country: country, refresh: refresh)
+        if iconColorsFromStore {
+            try await Pipeline.sampleStoreIconColors(
+                workspace: workspace,
+                snapshot: snapshot,
+                country: country,
+                refresh: refresh
+            )
+        }
     }
 }
 
@@ -95,7 +113,11 @@ struct PlanCommand: AsyncParsableCommand {
             classification: try Pipeline.loadClassification(workspace),
             schemes: scheme.isEmpty ? OrganizationScheme.allCases : scheme,
             options: layoutOptions.planOptions,
-            context: try layoutOptions.loadContext(records: records, apps: snapshot.layout.appBundleIDs),
+            context: try layoutOptions.loadContext(
+                records: records,
+                apps: snapshot.layout.appBundleIDs,
+                storeColors: Pipeline.loadStoreColors(workspace).parsed
+            ).context,
             taxonomy: try global.loadTaxonomy()
         )
     }
@@ -118,14 +140,18 @@ struct PreviewCommand: AsyncParsableCommand {
         let workspace = global.makeWorkspace()
         let snapshot = try Pipeline.loadScan(workspace)
         let records = Pipeline.catalog(workspace: workspace, snapshot: snapshot)
-        let context = try layoutOptions.loadContext(records: records, apps: snapshot.layout.appBundleIDs)
+        let loaded = try layoutOptions.loadContext(
+            records: records,
+            apps: snapshot.layout.appBundleIDs,
+            storeColors: Pipeline.loadStoreColors(workspace).parsed
+        )
         let preview = try await Pipeline.preview(
             workspace: workspace,
             snapshot: snapshot,
             records: records,
             classification: try? Pipeline.loadClassification(workspace),
             plans: try Pipeline.loadPlans(workspace),
-            iconColors: context.iconColors
+            colors: loaded.colors
         )
         if openPreview {
             await Pipeline.open(preview)

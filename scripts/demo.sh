@@ -37,7 +37,7 @@ JSON
 echo "== Scan, classify, plan and preview =="
 omi run --offline --engine heuristic --usage "$WORKSPACE/usage.txt" --icon-colors "$WORKSPACE/icon-colors.json"
 
-for file in scan.json classification.json preview.html; do
+for file in scan.json classification.json preview.html colors.html; do
   test -s "$WORKSPACE/$file" || { echo "missing $file" >&2; exit 1; }
 done
 for scheme in $SCHEMES; do

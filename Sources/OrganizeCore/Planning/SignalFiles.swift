@@ -73,16 +73,6 @@ public enum SignalFiles {
         return Colors(colors: colors, unmatched: unmatched)
     }
 
-    /// Built-in colors for Apple's own apps, overridden by anything in `extra`.
-    public static func iconColors(merging extra: [String: RGBColor]) -> [String: RGBColor] {
-        var result: [String: RGBColor] = [:]
-        for (bundleID, hex) in KnownApps.iconColors {
-            result[bundleID] = RGBColor(hex: hex)
-        }
-        result.merge(extra) { _, new in new }
-        return result
-    }
-
     static func stripNumbering(_ line: String) -> String {
         var index = line.startIndex
         while index < line.endIndex, line[index].isNumber {

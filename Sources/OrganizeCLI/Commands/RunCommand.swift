@@ -19,6 +19,16 @@ struct RunCommand: AsyncParsableCommand {
     @Option(name: .long, help: "App Store storefront to look apps up in.")
     var country: String = "us"
 
+    @Flag(
+        name: .customLong("icon-colors-from-store"),
+        help: ArgumentHelp(
+            "Download each app's App Store icon and find its main color, for the rainbow layout.",
+            discussion: "Contacts Apple's image server (mzstatic.com) once per icon; results are cached. "
+                + "The images are read on this Mac and not kept."
+        )
+    )
+    var iconColorsFromStore = false
+
     @Flag(name: .customLong("open"), help: "Open the preview in your browser when it is ready.")
     var openPreview = false
 
@@ -46,9 +56,20 @@ struct RunCommand: AsyncParsableCommand {
 
         if offline {
             Console.say("- App Store lookup skipped (--offline)")
+            if iconColorsFromStore {
+                Console.say("- Icon colors from the App Store skipped (--offline)")
+            }
         } else {
             do {
                 try await Pipeline.enrich(workspace: workspace, snapshot: snapshot, country: country, refresh: false)
+                if iconColorsFromStore {
+                    try await Pipeline.sampleStoreIconColors(
+                        workspace: workspace,
+                        snapshot: snapshot,
+                        country: country,
+                        refresh: false
+                    )
+                }
             } catch {
                 Console.warn("App Store lookup failed (\(error.localizedDescription)); continuing without it.")
             }
@@ -62,7 +83,11 @@ struct RunCommand: AsyncParsableCommand {
             taxonomy: taxonomy,
             engine: engine
         )
-        let context = try layoutOptions.loadContext(records: records, apps: snapshot.layout.appBundleIDs)
+        let loaded = try layoutOptions.loadContext(
+            records: records,
+            apps: snapshot.layout.appBundleIDs,
+            storeColors: Pipeline.loadStoreColors(workspace).parsed
+        )
         let plans = try await Pipeline.plan(
             workspace: workspace,
             snapshot: snapshot,
@@ -70,7 +95,7 @@ struct RunCommand: AsyncParsableCommand {
             classification: classification,
             schemes: scheme.isEmpty ? OrganizationScheme.allCases : scheme,
             options: layoutOptions.planOptions,
-            context: context,
+            context: loaded.context,
             taxonomy: taxonomy
         )
         let preview = try await Pipeline.preview(
@@ -79,7 +104,7 @@ struct RunCommand: AsyncParsableCommand {
             records: records,
             classification: classification,
             plans: plans,
-            iconColors: context.iconColors
+            colors: loaded.colors
         )
         if openPreview {
             await Pipeline.open(preview)
