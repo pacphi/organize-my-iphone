@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>organize-my-iphone</title>
+  <meta name="description" content="A macOS command-line tool that sorts the apps on your iPhone into a tidier Home Screen. It runs on your Mac, shows you the layout first, and backs up before it changes anything.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Critter sprite. Every character here is an original drawing made for this site. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <!-- Shared anime-style eye: big dark oval with two shines. -->
+      <g id="eye">
+        <ellipse cx="0" cy="0" rx="6.5" ry="8.5" fill="#1b1530"/>
+        <circle cx="-2" cy="-3.5" r="2.8" fill="#fff"/>
+        <circle cx="2.4" cy="3" r="1.3" fill="#fff"/>
+      </g>
+      <g id="eye-sm">
+        <ellipse cx="0" cy="0" rx="5" ry="6.5" fill="#1b1530"/>
+        <circle cx="-1.6" cy="-2.6" r="2.1" fill="#fff"/>
+        <circle cx="1.8" cy="2.4" r="1" fill="#fff"/>
+      </g>
+      <g id="blush">
+        <ellipse cx="0" cy="0" rx="6" ry="3" fill="#ff8fab" opacity=".75"/>
+      </g>
+    </defs>
+
+    <!-- Scoot: the scanner. A round critter with a periscope and a USB-plug tail. -->
+    <symbol id="c-scoot" viewBox="0 0 120 120">
+      <g stroke="#1b1530" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M88 96 C104 98 112 86 110 70" fill="none"/>
+        <rect x="103" y="52" width="14" height="16" rx="3" fill="#c7cde0"/>
+        <path d="M107 52 V45 M113 52 V45" fill="none"/>
+        <ellipse cx="44" cy="106" rx="11" ry="6" fill="#2bb5a8"/>
+        <ellipse cx="76" cy="106" rx="11" ry="6" fill="#2bb5a8"/>
+        <circle cx="60" cy="70" r="36" fill="#3ad1c3"/>
+        <ellipse cx="60" cy="86" rx="19" ry="13" fill="#d4faf3" stroke-width="3"/>
+        <ellipse cx="25" cy="78" rx="7" ry="5" fill="#3ad1c3"/>
+        <ellipse cx="95" cy="78" rx="7" ry="5" fill="#3ad1c3"/>
+        <path d="M60 34 V16 H70" fill="none"/>
+      </g>
+      <circle cx="76" cy="16" r="11" fill="#ffe66d" opacity=".45"/>
+      <circle cx="76" cy="16" r="6" fill="#ffe66d" stroke="#1b1530" stroke-width="4"/>
+      <use href="#eye" x="47" y="64"/>
+      <use href="#eye" x="73" y="64"/>
+      <use href="#blush" x="38" y="76"/>
+      <use href="#blush" x="82" y="76"/>
+      <path d="M54 76 q3 4 6 0 q3 4 6 0" fill="none" stroke="#1b1530" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Pagelet: the reader. A fluffy round bird with reading glasses and a book. -->
+    <symbol id="c-pagelet" viewBox="0 0 120 120">
+      <g stroke="#1b1530" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M44 30 L38 12 L54 24 Z" fill="#ff9a6b"/>
+        <path d="M76 30 L82 12 L66 24 Z" fill="#ff9a6b"/>
+        <ellipse cx="25" cy="70" rx="9" ry="17" fill="#ff9a6b"/>
+        <ellipse cx="95" cy="70" rx="9" ry="17" fill="#ff9a6b"/>
+        <path d="M50 104 v8 M70 104 v8" fill="none" stroke="#f08a3c"/>
+        <path d="M60 22 C83 22 98 39 98 63 C98 88 82 104 60 104 C38 104 22 88 22 63 C22 39 37 22 60 22 Z" fill="#ffb38a"/>
+        <ellipse cx="60" cy="82" rx="23" ry="18" fill="#fff1e0" stroke-width="3"/>
+        <circle cx="46" cy="56" r="12" fill="#ffffff" fill-opacity=".45"/>
+        <circle cx="74" cy="56" r="12" fill="#ffffff" fill-opacity=".45"/>
+        <path d="M58 56 h4" fill="none"/>
+        <path d="M55 68 h10 l-5 7 z" fill="#ffcf4d" stroke-width="3"/>
+        <path d="M38 88 L60 92 L82 88 L82 106 L60 110 L38 106 Z" fill="#6c7bff"/>
+        <path d="M60 92 V110" fill="none" stroke-width="3"/>
+      </g>
+      <use href="#eye-sm" x="46" y="57"/>
+      <use href="#eye-sm" x="74" y="57"/>
+      <use href="#blush" x="33" y="72"/>
+      <use href="#blush" x="87" y="72"/>
+    </symbol>
+
+    <!-- Sortle: the sorter. A little cabinet with file-tab ears and drawers. -->
+    <symbol id="c-sortle" viewBox="0 0 120 120">
+      <g stroke="#1b1530" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <rect x="31" y="14" width="22" height="20" rx="5" fill="#ffd166"/>
+        <rect x="67" y="14" width="22" height="20" rx="5" fill="#06d6a0"/>
+        <rect x="34" y="100" width="16" height="12" rx="4" fill="#8f6df0"/>
+        <rect x="70" y="100" width="16" height="12" rx="4" fill="#8f6df0"/>
+        <ellipse cx="102" cy="68" rx="7" ry="6" fill="#b79cff"/>
+        <rect x="98" y="46" width="16" height="20" rx="3" fill="#fff" transform="rotate(12 106 56)"/>
+        <ellipse cx="18" cy="68" rx="7" ry="6" fill="#b79cff"/>
+        <rect x="22" y="26" width="76" height="78" rx="20" fill="#b79cff"/>
+        <rect x="36" y="70" width="48" height="12" rx="4" fill="#e3d9ff" stroke-width="3"/>
+        <rect x="36" y="86" width="48" height="12" rx="4" fill="#e3d9ff" stroke-width="3"/>
+      </g>
+      <circle cx="60" cy="76" r="2.6" fill="#ff6b8b"/>
+      <circle cx="60" cy="92" r="2.6" fill="#ffb703"/>
+      <path d="M101 52 h10 M101 57 h8" stroke="#8f6df0" stroke-width="2" transform="rotate(12 106 56)"/>
+      <use href="#eye" x="46" y="48"/>
+      <use href="#eye" x="74" y="48"/>
+      <use href="#blush" x="34" y="58"/>
+      <use href="#blush" x="86" y="58"/>
+      <path d="M55 57 q5 7 10 0 z" fill="#5a1e3c" stroke="#1b1530" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Gridley: the planner. A stack of app-like tiles holding a pencil. -->
+    <symbol id="c-gridley" viewBox="0 0 120 120">
+      <g stroke="#1b1530" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M60 22 q-6 -12 6 -15" fill="none" stroke-width="3.5"/>
+        <rect x="32" y="84" width="26" height="24" rx="8" fill="#4cc9f0"/>
+        <rect x="62" y="84" width="26" height="24" rx="8" fill="#95d5b2"/>
+        <rect x="14" y="48" width="16" height="16" rx="5" fill="#ffd166"/>
+        <path d="M100 52 L112 26" fill="none" stroke-width="9"/>
+        <path d="M100 52 L112 26" fill="none" stroke="#ffd166" stroke-width="3.5"/>
+        <path d="M112 26 l1 -7" fill="none" stroke-width="3"/>
+        <rect x="90" y="46" width="16" height="16" rx="5" fill="#ffd166"/>
+        <rect x="28" y="20" width="64" height="64" rx="18" fill="#ff8a5b"/>
+      </g>
+      <g fill="#ffc2a8">
+        <circle cx="52" cy="32" r="2"/><circle cx="60" cy="32" r="2"/><circle cx="68" cy="32" r="2"/>
+        <circle cx="56" cy="38" r="2"/><circle cx="64" cy="38" r="2"/>
+      </g>
+      <use href="#eye" x="47" y="54"/>
+      <use href="#eye" x="73" y="54"/>
+      <use href="#blush" x="37" y="66"/>
+      <use href="#blush" x="83" y="66"/>
+      <path d="M54 66 q6 6 12 0" fill="none" stroke="#1b1530" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- Lumi: the previewer. A glowing lantern jelly with a little window. -->
+    <symbol id="c-lumi" viewBox="0 0 120 120">
+      <circle cx="60" cy="52" r="48" fill="#bde7ff" opacity=".35"/>
+      <g fill="none" stroke-linecap="round">
+        <g stroke="#1b1530" stroke-width="8">
+          <path d="M38 70 q-6 10 0 20 q6 10 0 18"/>
+          <path d="M53 72 q6 10 0 20 q-6 8 0 14"/>
+          <path d="M67 72 q-6 10 0 20 q6 8 0 14"/>
+          <path d="M82 70 q6 10 0 20 q-6 10 0 18"/>
+        </g>
+        <g stroke="#7fb8f2" stroke-width="3.5">
+          <path d="M38 70 q-6 10 0 20 q6 10 0 18"/>
+          <path d="M53 72 q6 10 0 20 q-6 8 0 14"/>
+          <path d="M67 72 q-6 10 0 20 q6 8 0 14"/>
+          <path d="M82 70 q6 10 0 20 q-6 10 0 18"/>
+        </g>
+      </g>
+      <g stroke="#1b1530" stroke-width="4" stroke-linejoin="round">
+        <path d="M22 66 C22 36 40 18 60 18 C80 18 98 36 98 66 Q89 73 79 66 Q70 74 60 66 Q50 74 41 66 Q31 73 22 66 Z" fill="#8ecdf7"/>
+        <rect x="47" y="26" width="26" height="16" rx="4" fill="#fff8d6" stroke-width="3"/>
+      </g>
+      <g fill="#6c7bff">
+        <rect x="51" y="30" width="4" height="3" rx="1"/><rect x="58" y="30" width="4" height="3" rx="1"/><rect x="65" y="30" width="4" height="3" rx="1"/>
+        <rect x="51" y="35" width="4" height="3" rx="1"/><rect x="58" y="35" width="4" height="3" rx="1"/>
+      </g>
+      <use href="#eye" x="45" y="52"/>
+      <use href="#eye" x="75" y="52"/>
+      <use href="#blush" x="34" y="61"/>
+      <use href="#blush" x="86" y="61"/>
+      <path d="M56 60 q4 4 8 0" fill="none" stroke="#1b1530" stroke-width="3" stroke-linecap="round"/>
+      <path d="M104 22 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 z M12 30 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 l4 -1.5 z" fill="#ffe66d" stroke="#1b1530" stroke-width="1.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Rewindle: the keeper of backups. A snail whose shell is an undo arrow. -->
+    <symbol id="c-rewindle" viewBox="0 0 120 120">
+      <g stroke="#1b1530" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M91 46 L85 30 M104 45 L110 29" fill="none" stroke-width="3.5"/>
+        <circle cx="85" cy="28" r="4.5" fill="#ff8fab" stroke-width="3"/>
+        <circle cx="110" cy="27" r="4.5" fill="#ff8fab" stroke-width="3"/>
+        <path d="M10 104 Q8 92 24 92 L80 92 C80 70 82 46 98 44 C114 42 118 60 114 76 C111 92 104 106 88 106 L18 106 Q10 106 10 104 Z" fill="#9be7c4"/>
+        <circle cx="50" cy="64" r="30" fill="#ffb347"/>
+        <circle cx="50" cy="64" r="11" fill="#ffd28a" stroke-width="3"/>
+        <path d="M33 50 A22 22 0 1 1 30 74" fill="none" stroke="#c46a00" stroke-width="5"/>      </g>
+      <path d="M24 46 L38 44 L33 58 Z" fill="#c46a00" stroke="#1b1530" stroke-width="2.5" stroke-linejoin="round"/>
+      <use href="#eye-sm" x="93" y="62"/>
+      <use href="#eye-sm" x="107" y="62"/>
+      <use href="#blush" x="88" y="74"/>
+      <path d="M96 75 q4 4 8 0" fill="none" stroke="#1b1530" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+  </svg>
+
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="top">
+    <a class="brand" href="./">
+      <svg class="brand-mark" aria-hidden="true"><use href="#c-scoot"/></svg>
+      <span>organize<b>-my-</b>iphone</span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#crew">How it works</a>
+      <a href="#layouts">Layouts</a>
+      <a href="#safety">Safety</a>
+      <a href="#start">Get started</a>
+      <a class="nav-gh" href="https://github.com/pacphi/organize-my-iphone">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero panel halftone">
+      <div class="hero-copy">
+        <p class="burst" aria-label="Version 0.1.0, a first cut">v0.1.0 <span>first cut!</span></p>
+        <h1>Your Home Screen,<br><em>sorted.</em></h1>
+        <p class="lede">A command-line tool for your Mac. Plug in your iPhone with a cable. It reads your apps, sorts them into groups with a model that runs on your Mac, and shows you tidier layouts. Nothing on the phone changes until you say so.</p>
+        <div class="cta">
+          <a class="btn btn-main" href="#layouts">Try the layouts</a>
+          <a class="btn" href="https://github.com/pacphi/organize-my-iphone">Get it on GitHub</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="bubble bubble-hero">Plug in. We'll tidy up!</div>
+        <svg class="hero-c hc-1"><use href="#c-scoot"/></svg>
+        <svg class="hero-c hc-2"><use href="#c-sortle"/></svg>
+        <svg class="hero-c hc-3"><use href="#c-lumi"/></svg>
+        <svg class="hero-c hc-4"><use href="#c-gridley"/></svg>
+        <svg class="hero-c hc-5"><use href="#c-pagelet"/></svg>
+        <svg class="hero-c hc-6"><use href="#c-rewindle"/></svg>
+      </div>
+    </section>
+
+    <!-- CREW / PIPELINE -->
+    <section id="crew" class="section">
+      <h2 class="section-title"><span>Meet the crew</span></h2>
+      <p class="section-lede">The tool works in steps. Each step saves its result in a folder on your Mac, so you can run any step again on its own. Here is who does what.</p>
+      <ol class="crew">
+        <li class="card" style="--accent:#3ad1c3">
+          <svg class="card-c" aria-hidden="true"><use href="#c-scoot"/></svg>
+          <p class="step">Step 1 · <code>scan</code></p>
+          <h3>Scoot</h3>
+          <p>Reads the list of apps and your current Home Screen over the cable, using Apple Configurator's <code>cfgutil</code>. Saves a backup right away.</p>
+        </li>
+        <li class="card" style="--accent:#ffb38a">
+          <svg class="card-c" aria-hidden="true"><use href="#c-pagelet"/></svg>
+          <p class="step">Step 2 · <code>enrich</code></p>
+          <h3>Pagelet</h3>
+          <p>Looks up each app's App Store genre and description. This is the only step that goes online, and you can skip it with <code>--offline</code>.</p>
+        </li>
+        <li class="card" style="--accent:#b79cff">
+          <svg class="card-c" aria-hidden="true"><use href="#c-sortle"/></svg>
+          <p class="step">Step 3 · <code>classify</code></p>
+          <h3>Sortle</h3>
+          <p>Puts each app in a group, like Money or Media. Simple rules handle the obvious ones. A model on your Mac (Ollama or Apple's own) decides the rest.</p>
+        </li>
+        <li class="card" style="--accent:#ff8a5b">
+          <svg class="card-c" aria-hidden="true"><use href="#c-gridley"/></svg>
+          <p class="step">Step 4 · <code>plan</code></p>
+          <h3>Gridley</h3>
+          <p>Builds the new layouts and checks each one against iOS limits: 24 icons a page, 4 in the dock, 9 per folder page, 15 pages.</p>
+        </li>
+        <li class="card" style="--accent:#8ecdf7">
+          <svg class="card-c" aria-hidden="true"><use href="#c-lumi"/></svg>
+          <p class="step">Step 5 · <code>preview</code></p>
+          <h3>Lumi</h3>
+          <p>Writes a web page that shows each proposal next to your current layout, so you can compare before anything changes.</p>
+        </li>
+        <li class="card" style="--accent:#ffb347">
+          <svg class="card-c" aria-hidden="true"><use href="#c-rewindle"/></svg>
+          <p class="step">Only if you ask · <code>apply</code> · <code>restore</code></p>
+          <h3>Rewindle</h3>
+          <p>Backs up the phone, shows how much will move, and asks you first. Then writes the layout you picked. Changed your mind? <code>restore</code> puts the old one back.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- LAYOUT PLAYGROUND -->
+    <section id="layouts" class="section">
+      <h2 class="section-title"><span>Try a layout</span></h2>
+      <p class="section-lede">Pick a layout to see how it would arrange a sample phone. The apps here are made up. Your own phone gets the same treatment with your real apps.</p>
+
+      <div class="play panel">
+        <div class="picker">
+          <div class="picker-group">
+            <h3>Start here</h3>
+            <div class="chips" id="chips-before"></div>
+          </div>
+          <div class="picker-group">
+            <h3>In 0.1.0 today</h3>
+            <div class="chips" id="chips-now"></div>
+          </div>
+          <div class="picker-group">
+            <h3>New layouts <span class="tag">coming next</span></h3>
+            <div class="chips" id="chips-new"></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="phone" id="phone">
+            <div class="screen" id="screen">
+              <div class="status"><span>10:08</span><span class="status-r" aria-hidden="true">●●● ▮</span></div>
+              <p class="page-label" id="page-label" hidden></p>
+              <div class="grid" id="grid" role="group" aria-label="Home Screen page"></div>
+              <div class="dots" id="dots" aria-hidden="true"></div>
+              <div class="dock" id="dock" role="group" aria-label="Dock"></div>
+              <div class="folder-view" id="folder-view" hidden>
+                <div class="folder-box" role="dialog" aria-modal="true" aria-labelledby="folder-name">
+                  <p class="folder-name" id="folder-name"></p>
+                  <div class="folder-grid" id="folder-grid"></div>
+                  <div class="dots folder-dots" id="folder-dots" aria-hidden="true"></div>
+                  <button class="folder-close" id="folder-close" type="button">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pager">
+            <button type="button" id="prev" aria-label="Previous page">‹</button>
+            <span id="page-count" aria-live="polite">Page 1 of 1</span>
+            <button type="button" id="next" aria-label="Next page">›</button>
+          </div>
+        </div>
+
+        <div class="host">
+          <svg class="host-c" id="host-c" aria-hidden="true"><use href="#c-gridley"/></svg>
+          <div class="bubble bubble-host">
+            <p class="host-title" id="host-title"></p>
+            <p id="host-text"></p>
+            <p class="host-cmd" id="host-cmd"></p>
+            <p class="host-soon" id="host-soon" hidden>Coming next. Not in 0.1.0 yet.</p>
+          </div>
+        </div>
+      </div>
+      <p class="fineprint">Every layout keeps the dock as it is and puts every icon on the screen exactly once. Tap a folder to open it. Swipe or use the arrows to change pages.</p>
+    </section>
+
+    <!-- SAFETY + PRIVACY -->
+    <section id="safety" class="section two-up">
+      <div class="panel promise" style="--accent:#ffb347">
+        <svg class="promise-c" aria-hidden="true"><use href="#c-rewindle"/></svg>
+        <h2>Safe by design</h2>
+        <ul>
+          <li>Only <code>apply</code> and <code>restore</code> write to the phone, and both ask you first.</li>
+          <li>Every scan and every apply saves your layout to <code>~/.organize-my-iphone/backups/</code>.</li>
+          <li>A layout is refused if it would drop an icon, show one twice, or break an iOS limit.</li>
+          <li>The dock is never rearranged.</li>
+          <li>Web clips and anything the tool doesn't recognize are kept, not thrown away.</li>
+          <li>Try <code>apply --dry-run</code> first to see exactly what would move.</li>
+        </ul>
+      </div>
+      <div class="panel promise" style="--accent:#ffb38a">
+        <svg class="promise-c" aria-hidden="true"><use href="#c-pagelet"/></svg>
+        <h2>Private by default</h2>
+        <ul>
+          <li>Your list of apps stays on your Mac, in <code>~/.organize-my-iphone</code>.</li>
+          <li>The sorting model runs on your Mac. No cloud model is called.</li>
+          <li>The one network call sends app IDs (like <code>com.example.notes</code>) to Apple's App Store lookup, and nothing else.</li>
+          <li><code>--offline</code> skips that call completely.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- GET STARTED -->
+    <section id="start" class="section">
+      <h2 class="section-title"><span>Get started</span></h2>
+      <div class="start panel">
+        <div class="start-need">
+          <h3>You need</h3>
+          <ul>
+            <li>A Mac with macOS 15 or later</li>
+            <li>Xcode 26 or later, to build</li>
+            <li><a href="https://apps.apple.com/app/apple-configurator/id1037126344">Apple Configurator</a>, which includes <code>cfgutil</code></li>
+            <li>An iPhone on a cable, unlocked, that trusts this Mac</li>
+            <li>Optional: <a href="https://ollama.com">Ollama</a>, or macOS 26 with Apple Intelligence on</li>
+          </ul>
+          <p class="note">Quit the Apple Configurator app before you scan. While it's open, it holds on to the phone.</p>
+        </div>
+        <div class="start-steps">
+          <h3>Run it</h3>
+<pre><code><span class="c"># Get the code</span>
+git clone https://github.com/pacphi/organize-my-iphone.git
+cd organize-my-iphone
+
+<span class="c"># 1. Check your setup</span>
+swift run organize-my-iphone doctor
+
+<span class="c"># 2. Scan, sort, plan and preview. Changes nothing.</span>
+swift run organize-my-iphone run --open
+
+<span class="c"># 3. See what would move, then apply the one you like</span>
+swift run organize-my-iphone apply folder-board --dry-run
+swift run organize-my-iphone apply folder-board
+
+<span class="c"># Changed your mind?</span>
+swift run organize-my-iphone restore</code></pre>
+          <p class="note">No iPhone handy? <code>make demo</code> runs the whole thing against a pretend one.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-strip panel halftone">
+      <svg class="status-c" aria-hidden="true"><use href="#c-sortle"/></svg>
+      <div>
+        <h2>Honest status</h2>
+        <p>Version 0.1.0 is a first cut. The logic has unit tests, and every change runs the whole pipeline against a pretend iPhone. It has been run from scan to restore on one real iPhone so far. Writing a layout relies on <code>cfgutil</code>, which behaves differently on different iOS versions, so use <code>--dry-run</code> first and keep your backups.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p><a href="https://github.com/pacphi/organize-my-iphone">Source on GitHub</a> · <a href="https://github.com/pacphi/organize-my-iphone/blob/main/docs/usage.md">Usage guide</a> · <a href="https://github.com/pacphi/organize-my-iphone/blob/main/docs/architecture.md">Architecture</a></p>
+    <p>organize-my-iphone is an independent project. It is not made by, endorsed by, or affiliated with Apple. iPhone and Apple Configurator are trademarks of Apple Inc. The critters are original characters drawn for this site, and the apps in the sample phone are made up.</p>
+    <p>No license has been chosen for the code yet.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
