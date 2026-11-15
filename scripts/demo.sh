@@ -19,12 +19,51 @@ omi() {
   swift run organize-my-iphone "$@" --cfgutil "$FAKE" --workspace "$WORKSPACE"
 }
 
-echo "== Scan, classify, plan and preview =="
-omi run --offline --engine heuristic
+SCHEMES="category-pages folder-board alphabetical most-used time-of-day verb-folders rainbow thumb-reach places new-and-review essentials life-areas"
 
-for file in scan.json classification.json plan-category-pages.json plan-folder-board.json preview.html; do
+# Optional files some layouts use: how much each app is used, and icon colors.
+mkdir -p "$WORKSPACE"
+cat >"$WORKSPACE/usage.txt" <<'TXT'
+# Most-used first, by name or bundle identifier
+1. Spotify
+2. ChatGPT
+3. com.anthropic.claude
+4. Instagram
+TXT
+cat >"$WORKSPACE/icon-colors.json" <<'JSON'
+{"Spotify": "#1DB954", "com.netflix.Netflix": "#E50914", "PayPal": "#003087", "Duolingo": "#58CC02"}
+JSON
+
+echo "== Scan, classify, plan and preview =="
+omi run --offline --engine heuristic --usage "$WORKSPACE/usage.txt" --icon-colors "$WORKSPACE/icon-colors.json"
+
+for file in scan.json classification.json preview.html colors.html; do
   test -s "$WORKSPACE/$file" || { echo "missing $file" >&2; exit 1; }
 done
+for scheme in $SCHEMES; do
+  test -s "$WORKSPACE/plan-$scheme.json" || { echo "missing plan-$scheme.json" >&2; exit 1; }
+done
+
+echo
+echo "== Check every proposal against the fake phone (dry run) =="
+for scheme in $SCHEMES; do
+  omi apply "$scheme" --dry-run
+done
+
+python3 - "$WORKSPACE" <<'PY'
+import json, os, sys
+workspace = sys.argv[1]
+most_used = json.load(open(os.path.join(workspace, "plan-most-used.json")))
+assert not most_used.get("notes"), "a usage file was given, so there should be no stand-in note"
+top = most_used["groups"][0]["bundleIDs"][:3]
+# usage.txt names Spotify and ChatGPT by display name and Claude by bundle identifier.
+assert top == ["com.spotify.client", "com.openai.chat", "com.anthropic.claude"], f"usage order not followed: {top}"
+print("Most used, page 1:", most_used["pageLabels"][0])
+rainbow = json.load(open(os.path.join(workspace, "plan-rainbow.json")))
+bands = [group["category"] for group in rainbow["groups"]]
+assert bands[0] == "Red", f"rainbow should start with red, found {bands}"
+print("Rainbow bands:", ", ".join(bands))
+PY
 
 echo
 echo "== Apply the folder board to the fake phone =="

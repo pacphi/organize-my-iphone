@@ -39,7 +39,7 @@ Actors: the **User** at the Mac; the **iPhone** connected by cable; a **Local mo
 
 ## UC-02 Build proposals for a phone
 
-**Goal:** Get two layout proposals and a preview without changing the phone.
+**Goal:** Get layout proposals and a preview without changing the phone.
 **Preconditions:** `cfgutil` installed; one iPhone connected and trusted.
 
 **Main flow**
@@ -47,7 +47,7 @@ Actors: the **User** at the Mac; the **iPhone** connected by cable; a **Local mo
 2. The tool reads the layout and installed apps from the iPhone and saves a backup.
 3. The tool looks up apps not already cached in the App Store.
 4. The tool classifies every app with the best available engine.
-5. The tool builds both proposals, validates them, and prints a summary of each.
+5. The tool builds all twelve proposals, validates them, and prints a summary of each.
 6. The tool writes the preview page and prints its path.
 
 **Alternatives**
@@ -57,7 +57,7 @@ Actors: the **User** at the Mac; the **iPhone** connected by cable; a **Local mo
 - 4b. The model fails mid-run: affected apps are classified by rules.
 - 5a. A proposal breaks an iOS limit (for example, more than 15 pages): the issue is listed under that proposal; `apply` will refuse it.
 
-**Result:** `scan.json`, `classification.json`, two plan files and `preview.html` exist in the workspace. The phone is unchanged.
+**Result:** `scan.json`, `classification.json`, twelve plan files and `preview.html` exist in the workspace. The phone is unchanged.
 
 ## UC-03 Work entirely offline
 
@@ -102,7 +102,7 @@ Actors: the **User** at the Mac; the **iPhone** connected by cable; a **Local mo
 **Preconditions:** A scan and a classification exist.
 
 **Main flow**
-1. The User runs `plan` with `--one-page-per-category`, `--min-folder-size <n>`, or `--scheme <scheme>`.
+1. The User runs `plan` with layout options such as `--one-page-per-category`, `--min-folder-size <n>`, `--letter-folders`, `--usage <file>` or `--scheme <scheme>` (see [layouts.md](layouts.md)).
 2. The tool rebuilds and revalidates the proposal files.
 
 ## UC-07 Review proposals

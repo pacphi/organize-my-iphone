@@ -20,7 +20,7 @@ Let someone reorganize an entire iPhone Home Screen from their Mac in a few minu
 
 1. Read every app and the current layout from a connected iPhone without changing anything.
 2. Sort apps into sensible, user-adjustable categories using a model that runs on the Mac.
-3. Offer two complete layout proposals and show them next to the current layout.
+3. Offer several complete layout proposals (twelve as of this version; see [layouts.md](layouts.md)) and show them next to the current layout.
 4. Apply the chosen proposal to the phone, safely and reversibly.
 5. Keep the list of apps private.
 

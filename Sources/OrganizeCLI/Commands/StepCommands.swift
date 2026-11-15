@@ -34,10 +34,28 @@ struct EnrichCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Ignore the cache and look every app up again.")
     var refresh = false
 
+    @Flag(
+        name: .customLong("icon-colors-from-store"),
+        help: ArgumentHelp(
+            "Download each app's App Store icon and find its main color, for the rainbow layout.",
+            discussion: "Contacts Apple's image server (mzstatic.com) once per icon; results are cached. "
+                + "The images are read on this Mac and not kept."
+        )
+    )
+    var iconColorsFromStore = false
+
     func run() async throws {
         let workspace = global.makeWorkspace()
         let snapshot = try Pipeline.loadScan(workspace)
         try await Pipeline.enrich(workspace: workspace, snapshot: snapshot, country: country, refresh: refresh)
+        if iconColorsFromStore {
+            try await Pipeline.sampleStoreIconColors(
+                workspace: workspace,
+                snapshot: snapshot,
+                country: country,
+                refresh: refresh
+            )
+        }
     }
 }
 
@@ -74,20 +92,32 @@ struct PlanCommand: AsyncParsableCommand {
     @OptionGroup var global: GlobalOptions
     @OptionGroup var layoutOptions: LayoutOptions
 
-    @Option(name: .long, help: "Build only this scheme: category-pages or folder-board. Default: both.")
-    var scheme: SchemeOption?
+    @Option(
+        name: .long,
+        help: ArgumentHelp(
+            "Build only this scheme. Repeat to build several. Default: all of them.",
+            discussion: "`organize-my-iphone schemes` describes each one.",
+            valueName: "scheme"
+        )
+    )
+    var scheme: [OrganizationScheme] = []
 
     func run() async throws {
         let workspace = global.makeWorkspace()
         let snapshot = try Pipeline.loadScan(workspace)
-        let schemes = scheme.map { [$0.scheme] } ?? OrganizationScheme.allCases
+        let records = Pipeline.catalog(workspace: workspace, snapshot: snapshot)
         _ = try await Pipeline.plan(
             workspace: workspace,
             snapshot: snapshot,
-            records: Pipeline.catalog(workspace: workspace, snapshot: snapshot),
+            records: records,
             classification: try Pipeline.loadClassification(workspace),
-            schemes: schemes,
+            schemes: scheme.isEmpty ? OrganizationScheme.allCases : scheme,
             options: layoutOptions.planOptions,
+            context: try layoutOptions.loadContext(
+                records: records,
+                apps: snapshot.layout.appBundleIDs,
+                storeColors: Pipeline.loadStoreColors(workspace).parsed
+            ).context,
             taxonomy: try global.loadTaxonomy()
         )
     }
@@ -104,18 +134,46 @@ struct PreviewCommand: AsyncParsableCommand {
     @Flag(name: .customLong("open"), help: "Open the preview in your browser.")
     var openPreview = false
 
+    @OptionGroup var layoutOptions: LayoutOptions
+
     func run() async throws {
         let workspace = global.makeWorkspace()
         let snapshot = try Pipeline.loadScan(workspace)
+        let records = Pipeline.catalog(workspace: workspace, snapshot: snapshot)
+        let loaded = try layoutOptions.loadContext(
+            records: records,
+            apps: snapshot.layout.appBundleIDs,
+            storeColors: Pipeline.loadStoreColors(workspace).parsed
+        )
         let preview = try await Pipeline.preview(
             workspace: workspace,
             snapshot: snapshot,
-            records: Pipeline.catalog(workspace: workspace, snapshot: snapshot),
+            records: records,
             classification: try? Pipeline.loadClassification(workspace),
-            plans: try Pipeline.loadPlans(workspace)
+            plans: try Pipeline.loadPlans(workspace),
+            colors: loaded.colors
         )
         if openPreview {
             await Pipeline.open(preview)
+        }
+    }
+}
+
+struct SchemesCommand: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "schemes",
+        abstract: "List the layout schemes, what each looks like, and the data it uses."
+    )
+
+    func run() throws {
+        Console.say("Layout schemes. Build them with `run` or `plan`, then `apply <scheme>`.")
+        for scheme in OrganizationScheme.allCases {
+            Console.say("")
+            Console.say("\(scheme.rawValue)  (\(scheme.title))")
+            Console.say("  \(scheme.summary)")
+            if let note = scheme.dataNote {
+                Console.say("  \(note)")
+            }
         }
     }
 }

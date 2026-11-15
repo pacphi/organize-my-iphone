@@ -7,9 +7,11 @@ Rules and context for AI coding agents working in this repository. This file is 
 
 `organize-my-iphone` is a Swift command-line tool for macOS. Over USB, through Apple Configurator's `cfgutil`, it
 reads the apps and Home Screen layout of a connected iPhone. It sorts the apps into categories using built-in rules
-plus a model that runs on the Mac (Ollama, or Apple's on-device Foundation Models). Then it proposes two tidier
-layouts (`category-pages` and `folder-board`) and shows them in an HTML preview next to the current layout. It writes a
-layout back to the phone only when the user runs `apply`, and `restore` puts a backed-up layout back.
+plus a model that runs on the Mac (Ollama, or Apple's on-device Foundation Models). Then it proposes twelve tidier
+layouts (`category-pages`, `folder-board`, `alphabetical`, `most-used`, `time-of-day`, `verb-folders`, `rainbow`,
+`thumb-reach`, `places`, `new-and-review`, `essentials`, `life-areas`; see `docs/layouts.md`) and shows them in an
+HTML preview next to the current layout. It writes a layout back to the phone only when the user runs `apply`, and
+`restore` puts a backed-up layout back.
 
 Pipeline: `scan → enrich → classify → plan → preview`, then optionally `apply` / `restore`. Each step reads and
 writes JSON files in a workspace folder (default `~/.organize-my-iphone`), so any step can be rerun alone. `run`
@@ -73,6 +75,11 @@ Set `FAKE_CFGUTIL_STATE=<file>` so the fake phone remembers a layout written by 
 - `OrganizeCLI` is wiring and wording only. Logic worth testing belongs in Core or Adapters.
 - Extension points (see `docs/architecture.md`): a new model backend implements `TextCompletionModel`; a new device
   transport implements `DeviceClient`; a new layout scheme implements `LayoutPlanner`.
+- Facts `cfgutil` cannot read (usage, install order, icon colors) reach planners through `PlanContext`, filled by the
+  CLI from optional files. A planner must still work without them, use a documented stand-in, and say so in its
+  `notes`. Never present a stand-in as real usage data.
+- Loose-page layouts must stay within 15 pages: build them with `SectionPacker` or `RankedPacker`, which fold groups
+  into folders when pages run out.
 
 ## Safety rules (do not weaken)
 
@@ -93,6 +100,12 @@ Set `FAKE_CFGUTIL_STATE=<file>` so the fake phone remembers a layout written by 
 - The only network call is the optional App Store lookup, which sends bundle identifiers to Apple. `--offline`
   skips it. Do not add other network calls.
 - Classification runs locally. Do not add cloud model backends; Private Cloud Compute is deliberately not used.
+- Do not add other network calls without the owner's approval.
+- The `--usage`, `--recent` and `--icon-colors` files are read locally and never sent anywhere.
+- The only network calls are the App Store lookup (bundle identifiers to `itunes.apple.com`) and, only with the
+  opt-in `--icon-colors-from-store`, icon downloads from Apple's image hosts (`*.mzstatic.com`, enforced by
+  `IconColorSampler.isAllowed`). `--offline` skips both. Images are processed in memory and not kept.
+- `preview.html` stays script-free. `colors.html` (the color wheel) may run inline script but must load nothing.
 
 ## Code style and tests
 

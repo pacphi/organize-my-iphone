@@ -5,50 +5,38 @@ import Foundation
 /// By default categories are packed one after another so pages fill up. A category that would
 /// not fit on the current page starts a new one, so clusters are split only when they are
 /// larger than a whole page. With `onePagePerCategory`, every category starts on a fresh page.
+/// When the clusters need more pages than iOS allows, the largest become folders.
 public struct CategoryPagesPlanner: LayoutPlanner {
     public let scheme = OrganizationScheme.categoryPages
 
     public init() {}
 
-    public func plan(current: IconLayout, groups: [AppGroup], options: PlanOptions) -> PlannedLayout {
-        let capacity = max(1, options.grid.pageCapacity)
+    public func plan(
+        current: IconLayout,
+        groups: [AppGroup],
+        context: PlanContext,
+        options: PlanOptions
+    ) -> PlannedLayout {
         let input = PlanInput(current: current, groups: groups, fallbackCategory: options.fallbackCategory)
-
-        var sections: [(title: String, items: [IconItem])] = input.groups.map { group in
-            (title: group.category, items: group.bundleIDs.map { IconItem.app($0) })
+        var sections = input.groups.map { group in
+            PackSection(title: group.category, groups: [group], startsNewPage: options.onePagePerCategory)
         }
         if !input.leftovers.isEmpty {
-            sections.append((title: "Web clips & other", items: input.leftovers))
+            sections.append(
+                PackSection(
+                    title: "Web clips & other",
+                    groups: [],
+                    extras: input.leftovers,
+                    startsNewPage: options.onePagePerCategory
+                )
+            )
         }
-
-        var pages: [[IconItem]] = []
-        var labels: [[String]] = []
-        var page: [IconItem] = []
-        var pageTitles: [String] = []
-
-        for section in sections {
-            for chunk in section.items.chunked(into: capacity) {
-                let fits = page.count + chunk.count <= capacity
-                if !page.isEmpty && (options.onePagePerCategory || !fits) {
-                    pages.append(page)
-                    labels.append(pageTitles)
-                    page = []
-                    pageTitles = []
-                }
-                page.append(contentsOf: chunk)
-                if !pageTitles.contains(section.title) {
-                    pageTitles.append(section.title)
-                }
-            }
-        }
-        if !page.isEmpty {
-            pages.append(page)
-            labels.append(pageTitles)
-        }
-
+        // On a phone with more apps than 15 pages hold, the biggest categories become folders.
+        let packed = SectionPacker.pack(sections, options: options, fill: false)
         return PlannedLayout(
-            layout: IconLayout(dock: current.dock, pages: pages),
-            pageLabels: labels.map { $0.joined(separator: " · ") }
+            layout: IconLayout(dock: current.dock, pages: packed.pages),
+            pageLabels: packed.labels.map { $0.joined(separator: " · ") },
+            notes: packed.note.map { [$0] } ?? []
         )
     }
 }
@@ -62,7 +50,12 @@ public struct FolderBoardPlanner: LayoutPlanner {
 
     public init() {}
 
-    public func plan(current: IconLayout, groups: [AppGroup], options: PlanOptions) -> PlannedLayout {
+    public func plan(
+        current: IconLayout,
+        groups: [AppGroup],
+        context: PlanContext,
+        options: PlanOptions
+    ) -> PlannedLayout {
         let capacity = max(1, options.grid.pageCapacity)
         let folderCapacity = max(1, options.grid.folderPageCapacity)
         let input = PlanInput(current: current, groups: groups, fallbackCategory: options.fallbackCategory)
@@ -94,6 +87,26 @@ public enum PlanBuilder {
             return CategoryPagesPlanner()
         case .folderBoard:
             return FolderBoardPlanner()
+        case .alphabetical:
+            return AlphabeticalPlanner()
+        case .mostUsed:
+            return MostUsedPlanner()
+        case .timeOfDay:
+            return BucketPagesPlanner(scheme: .timeOfDay, table: .timeOfDay)
+        case .verbFolders:
+            return VerbFoldersPlanner()
+        case .rainbow:
+            return RainbowPlanner()
+        case .thumbReach:
+            return ThumbReachPlanner()
+        case .places:
+            return BucketPagesPlanner(scheme: .places, table: .places)
+        case .newAndReview:
+            return NewAndReviewPlanner()
+        case .essentials:
+            return EssentialsPlanner()
+        case .lifeAreas:
+            return BucketPagesPlanner(scheme: .lifeAreas, table: .lifeAreas)
         }
     }
 
@@ -104,23 +117,27 @@ public enum PlanBuilder {
         names: [String: String],
         taxonomy: Taxonomy = .standard,
         options: PlanOptions = PlanOptions(),
+        context: PlanContext = PlanContext(),
         now: Date = Date()
     ) -> OrganizationPlan {
         var options = options
         options.fallbackCategory = taxonomy.fallback
+        var context = context
+        context.names.merge(names) { existing, _ in existing }
         let groups = Grouping.groups(
             for: current,
             classifications: classifications,
             names: names,
             taxonomy: taxonomy
         )
-        let planned = planner(for: scheme).plan(current: current, groups: groups, options: options)
+        let planned = planner(for: scheme).plan(current: current, groups: groups, context: context, options: options)
         return OrganizationPlan(
             scheme: scheme,
             createdAt: now,
-            groups: groups,
+            groups: planned.groups?.filter { !$0.bundleIDs.isEmpty } ?? groups,
             pageLabels: planned.pageLabels,
-            layout: planned.layout
+            layout: planned.layout,
+            notes: planned.notes.isEmpty ? nil : planned.notes
         )
     }
 }

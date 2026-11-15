@@ -132,7 +132,8 @@ public struct AppStoreLookupClient: Sendable {
                     name: entry.trackName,
                     primaryGenre: entry.primaryGenreName,
                     summary: entry.description.map { summarize($0) },
-                    seller: entry.sellerName
+                    seller: entry.sellerName,
+                    artworkURL: entry.artworkUrl100 ?? entry.artworkUrl60
                 )
             )
         }
@@ -157,6 +158,8 @@ public struct AppStoreLookupClient: Sendable {
             var primaryGenreName: String?
             var description: String?
             var sellerName: String?
+            var artworkUrl100: String?
+            var artworkUrl60: String?
         }
     }
 }

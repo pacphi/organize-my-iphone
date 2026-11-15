@@ -23,7 +23,7 @@ DEMO_WORKSPACE ?=
 BINARY := organize-my-iphone
 SWIFT_PATHS := Sources Tests Package.swift
 
-.PHONY: help build release install uninstall clean test demo check lint format doctor run
+.PHONY: help build release install uninstall clean test demo check lint format doctor schemes run
 
 ##@ General
 
@@ -38,6 +38,8 @@ help: ## Show this help
 	@printf "\nExamples:\n"
 	@printf "  make check\n"
 	@printf "  make run ARGS=\"run --open\"\n"
+	@printf "  make run ARGS=\"plan --scheme most-used --usage ~/usage.txt\"\n"
+	@printf "  make run ARGS=\"apply rainbow --dry-run\"\n"
 	@printf "  make demo DEMO_WORKSPACE=/tmp/omi-demo\n\n"
 
 ##@ Build
@@ -81,6 +83,9 @@ format: ## Reformat the Swift sources in place
 
 doctor: ## Check cfgutil, the connected iPhone and local models
 	swift run $(BINARY) doctor
+
+schemes: ## List the layout schemes and the data each one uses
+	swift run $(BINARY) schemes
 
 run: ## Run the tool with ARGS, e.g. make run ARGS="run --open"
 	swift run $(BINARY) $(ARGS)

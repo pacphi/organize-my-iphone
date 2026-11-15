@@ -10,6 +10,10 @@ public struct PreviewDocument: Sendable {
     public var categories: [String: String]
     public var current: IconLayout
     public var plans: [OrganizationPlan]
+    /// Bundle identifier → main icon color. Known colors tint icons; the rest use a category tint.
+    public var iconColors: [String: RGBColor]
+    /// A sibling page for checking and fixing icon colors, linked from the top when set.
+    public var colorPage: String?
 
     public init(
         deviceName: String,
@@ -17,7 +21,9 @@ public struct PreviewDocument: Sendable {
         names: [String: String],
         categories: [String: String],
         current: IconLayout,
-        plans: [OrganizationPlan]
+        plans: [OrganizationPlan],
+        iconColors: [String: RGBColor] = [:],
+        colorPage: String? = nil
     ) {
         self.deviceName = deviceName
         self.generatedAt = generatedAt
@@ -25,6 +31,8 @@ public struct PreviewDocument: Sendable {
         self.categories = categories
         self.current = current
         self.plans = plans
+        self.iconColors = iconColors
+        self.colorPage = colorPage
     }
 }
 
@@ -44,6 +52,20 @@ public enum HTMLPreviewRenderer {
         html.append("<h1>Home Screen plan for \(escape(document.deviceName))</h1>")
         html.append("<p class=\"meta\">Generated \(escape(document.generatedAt.formatted(.iso8601))). ")
         html.append("Nothing on the phone changes until you run <code>organize-my-iphone apply</code>.</p>")
+        if !document.plans.isEmpty {
+            html.append("<nav><strong>Proposals:</strong> ")
+            let links = document.plans.map { plan in
+                "<a href=\"#\(plan.scheme.rawValue)\">\(escape(plan.scheme.title))</a>"
+            }
+            html.append(links.joined(separator: " · "))
+            html.append("</nav>")
+        }
+        if let colorPage = document.colorPage {
+            html.append(
+                "<p>Icon colors look wrong in the rainbow layout? "
+                    + "<a href=\"\(escape(colorPage))\">Check and fix them on the color wheel</a>.</p>"
+            )
+        }
 
         html.append(
             section(
@@ -65,7 +87,10 @@ public enum HTMLPreviewRenderer {
                     note: note,
                     layout: plan.layout,
                     labels: plan.pageLabels,
-                    document: document
+                    document: document,
+                    anchor: plan.scheme.rawValue,
+                    details: [plan.scheme.summary, "Apply it with: organize-my-iphone apply \(plan.scheme.rawValue)"]
+                        + (plan.notes ?? [])
                 )
             )
         }
@@ -80,10 +105,20 @@ public enum HTMLPreviewRenderer {
         note: String,
         layout: IconLayout,
         labels: [String],
-        document: PreviewDocument
+        document: PreviewDocument,
+        anchor: String? = nil,
+        details: [String] = []
     ) -> String {
         var html: [String] = []
-        html.append("<section><h2>\(escape(title))</h2><p class=\"meta\">\(escape(note))</p>")
+        let id = anchor.map { " id=\"\(escape($0))\"" } ?? ""
+        html.append("<section\(id)><h2>\(escape(title))</h2><p class=\"meta\">\(escape(note))</p>")
+        if !details.isEmpty {
+            html.append("<ul class=\"notes\">")
+            for line in details {
+                html.append("<li>\(escape(line))</li>")
+            }
+            html.append("</ul>")
+        }
         html.append("<div class=\"pages\">")
         for (index, page) in layout.pages.enumerated() {
             let label = index < labels.count ? labels[index] : ""
@@ -129,7 +164,8 @@ public enum HTMLPreviewRenderer {
             return "<div class=\"tile\"><div class=\"icon folder\">\(dots.joined())</div>"
                 + "<div class=\"name\">\(escape(name))</div></div>"
         case .app, .webClip, .unknown:
-            return "<div class=\"tile\"><div class=\"icon\" style=\"background:\(color(for: item, document: document))\">"
+            return "<div class=\"tile\"><div class=\"icon\" style=\"background:\(color(for: item, document: document))"
+                + "\(textStyle(for: item, document: document))\">"
                 + "\(escape(initials(of: name)))</div><div class=\"name\">\(escape(name))</div></div>"
         }
     }
@@ -153,8 +189,21 @@ public enum HTMLPreviewRenderer {
         guard case .app(let bundleID) = item else {
             return "hsl(0, 0%, 55%)"
         }
+        if let known = document.iconColors[bundleID] {
+            return known.hex
+        }
         let category = document.categories[bundleID] ?? "Other"
         return "hsl(\(hue(for: category)), 55%, 45%)"
+    }
+
+    /// Dark initials on pale icons (white, yellow), so they stay readable.
+    static func textStyle(for item: IconItem, document: PreviewDocument) -> String {
+        guard case .app(let bundleID) = item, let known = document.iconColors[bundleID] else {
+            return ""
+        }
+        let (_, saturation, brightness) = known.hsb
+        let pale = brightness > 0.8 && (saturation < 0.3 || (known.red > 0.8 && known.green > 0.75))
+        return pale ? ";color:#1C1C1E;text-shadow:none" : ""
     }
 
     /// A stable hue per category. `hashValue` is not used because it changes on every launch.
@@ -204,12 +253,15 @@ public enum HTMLPreviewRenderer {
         .grid { display: grid; grid-template-columns: repeat(\(columns), 1fr); gap: 10px 6px; }
         .tile { text-align: center; min-width: 0; }
         .icon { width: 44px; height: 44px; margin: 0 auto; border-radius: 11px; color: #fff;
+                text-shadow: 0 0 3px rgba(0,0,0,.7); box-shadow: inset 0 0 0 1px rgba(128,128,128,.35);
                 display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
         .icon.folder { background: rgba(128,128,128,.3); display: grid; grid-template-columns: repeat(3, 1fr);
                        gap: 2px; padding: 6px; box-sizing: border-box; }
         .icon.folder i { display: block; border-radius: 3px; aspect-ratio: 1; }
         .name { font-size: 10px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         details { margin-top: 12px; }
+        nav { margin: 0 0 12px; line-height: 1.8; }
+        .notes { margin: 0 0 12px; padding-left: 20px; opacity: .85; }
         code { font-size: 13px; }
         """
     }

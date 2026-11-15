@@ -10,6 +10,9 @@ public enum PlanReport {
             "  \(plan.layout.pages.count) page(s), \(plan.layout.folders.count) folder(s); "
                 + "\(change.moved) of \(change.totalIcons) icons change page or folder"
         )
+        for note in plan.notes ?? [] {
+            lines.append("  Note: \(note)")
+        }
         for group in plan.groups {
             let preview = group.bundleIDs.prefix(4).map { names[$0] ?? $0 }.joined(separator: ", ")
             let more = group.bundleIDs.count > 4 ? ", …" : ""

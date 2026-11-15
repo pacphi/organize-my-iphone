@@ -174,6 +174,55 @@ public enum KnownApps {
         ),
     ]
 
+    /// The main color of Apple's own icons, for the rainbow layout. Approximate: one color that
+    /// stands for each icon at a glance. Multicolored icons (Maps, Photos' petals) are left out.
+    public static let iconColors: [String: String] = [
+        "com.apple.mobilephone": "#34C759",
+        "com.apple.MobileSMS": "#34C759",
+        "com.apple.facetime": "#34C759",
+        "com.apple.findmy": "#34C759",
+        "com.apple.Numbers": "#30B94D",
+        "com.apple.mobilemail": "#1E88E5",
+        "com.apple.mobilesafari": "#1E90FF",
+        "com.apple.AppStore": "#0D84FF",
+        "com.apple.DocumentsApp": "#1E88E5",
+        "com.apple.weather": "#4A90E2",
+        "com.apple.Translate": "#1C6EF2",
+        "com.apple.Keynote": "#1A8CFF",
+        "com.apple.Preferences": "#8E8E93",
+        "com.apple.camera": "#8E8E93",
+        "com.apple.MobileAddressBook": "#A2A2A7",
+        "com.apple.compass": "#1C1C1E",
+        "com.apple.mobiletimer": "#1C1C1E",
+        "com.apple.calculator": "#1C1C1E",
+        "com.apple.VoiceMemos": "#1C1C1E",
+        "com.apple.measure": "#1C1C1E",
+        "com.apple.stocks": "#1C1C1E",
+        "com.apple.tv": "#1C1C1E",
+        "com.apple.Passbook": "#1C1C1E",
+        "com.apple.Fitness": "#1C1C1E",
+        "com.apple.Magnifier": "#1C1C1E",
+        "com.apple.mobilecal": "#FFFFFF",
+        "com.apple.reminders": "#FFFFFF",
+        "com.apple.mobileslideshow": "#FFFFFF",
+        "com.apple.Health": "#FFFFFF",
+        "com.apple.freeform": "#FFFFFF",
+        "com.apple.Bridge": "#1C1C1E",
+        "com.apple.mobilenotes": "#FFD60A",
+        "com.apple.tips": "#FFD60A",
+        "com.apple.Pages": "#FF9500",
+        "com.apple.iBooks": "#FF9500",
+        "com.apple.Home": "#FF9500",
+        "com.apple.mobilegarageband": "#FF8A00",
+        "com.apple.Music": "#FA2D48",
+        "com.apple.news": "#FF3B30",
+        "com.apple.podcasts": "#9B4DCA",
+        "com.apple.iMovie": "#6E3BD9",
+        "com.apple.shortcuts": "#5E5CE6",
+        "com.apple.journal": "#C86BFA",
+        "com.apple.MobileStore": "#E5407A",
+    ]
+
     /// A readable name for a bundle identifier nothing else can name: "com.acme.SuperNotes" → "SuperNotes".
     public static func fallbackName(for bundleID: String) -> String {
         let last = bundleID.split(separator: ".").last.map { String($0) } ?? bundleID
