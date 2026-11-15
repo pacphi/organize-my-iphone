@@ -67,7 +67,12 @@
   var VERBS = ["Talk", "Watch", "Listen", "Make", "Buy", "Go", "Track", "Read", "Play", "Work", "Browse", "Tools"];
   var PLACES = ["Home", "Commute", "Office", "Travel", "Gym", "Everywhere"];
   var AREAS = ["Work", "Money", "Health", "Family", "Learning", "Play", "Everyday"];
-  var BANDS = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Brown", "Gray", "Black"];
+  // The same 11 slices, in the same order, as the tool's ColorBand.
+  var BANDS = ["Red", "Orange", "Yellow", "Green", "Teal", "Blue", "Purple", "Pink", "White", "Gray", "Black"];
+  var BAND_SWATCH = {
+    Red: "#FF3B30", Orange: "#FF9500", Yellow: "#FFD60A", Green: "#34C759", Teal: "#30B0C7", Blue: "#007AFF",
+    Purple: "#8E44D9", Pink: "#FF2D92", White: "#F2F2F7", Gray: "#8E8E93", Black: "#1C1C1E"
+  };
 
   // ---------- helpers ----------
   function chunk(list, size) {
@@ -107,17 +112,25 @@
     }
     return { h: h, s: s, l: l };
   }
+  // Mirrors ColorBand.of in the tool: hue, saturation and brightness (HSB).
   function band(hex) {
-    var c = hexToHsl(hex);
-    if (c.l < 0.16) return "Black";
-    if (c.s < 0.15) return "Gray";
-    if (c.h < 14 || c.h >= 345) return "Red";
-    if (c.h < 40) return c.l < 0.35 ? "Brown" : "Orange";
-    if (c.h < 65) return "Yellow";
-    if (c.h < 170) return "Green";
-    if (c.h < 250) return "Blue";
-    if (c.h < 290) return "Purple";
-    return "Pink";
+    var r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min, h = 0;
+    var sat = max === 0 ? 0 : d / max, bright = max;
+    if (d) {
+      h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      h *= 60;
+    }
+    if (bright < 0.22) return "Black";
+    if (sat < 0.18) return bright > 0.85 ? "White" : bright < 0.3 ? "Black" : "Gray";
+    if (h >= 15 && h < 45) return "Orange";
+    if (h >= 45 && h < 70) return "Yellow";
+    if (h >= 70 && h < 165) return "Green";
+    if (h >= 165 && h < 195) return "Teal";
+    if (h >= 195 && h < 255) return "Blue";
+    if (h >= 255 && h < 290) return "Purple";
+    if (h >= 290 && h < 345) return "Pink";
+    return "Red";
   }
 
   // A messy "before" order that stays the same on every visit.
@@ -178,7 +191,7 @@
     },
     {
       id: "rainbow", group: "new", title: "Rainbow", host: "c-rainbelle", who: "Rainbelle",
-      text: "Rainbelle lives in a rainbow and thinks you should too. Apps go in color bands from red through black, then the ones with no color data (striped here). Colors come from an --icon-colors file plus a built-in table for Apple's apps, not from the phone.",
+      text: "Rainbelle lives in a rainbow and thinks you should too. Apps go in 11 color bands, red through black, then any with no color data (striped here). Colors come from a built-in table for Apple's apps, from App Store icons if you add --icon-colors-from-store, and from your own --icon-colors file, which wins. Wrong match? Fix it on the color wheel below.",
       build: function () {
         var colored = APPS.filter(function (a) { return a.col; });
         var none = APPS.filter(function (a) { return !a.col; }).sort(byName);
@@ -408,6 +421,82 @@
     }
   }
 
+  // ---------- Rainbelle's color wheel ----------
+  // Like colors.html from the tool: one slice per band, sized by app count. Click a slice to see its apps.
+  function buildWheel() {
+    var host = $("wheel"), list = $("wheel-list"), legend = $("wheel-legend");
+    if (!host) return;
+    var NS = "http://www.w3.org/2000/svg";
+    var groups = {};
+    BANDS.forEach(function (b) { groups[b] = []; });
+    var none = [];
+    APPS.forEach(function (a) { if (a.col) groups[band(a.col)].push(a); else none.push(a); });
+    var cx = 110, cy = 110, R = 100, r = 46, step = (Math.PI * 2) / BANDS.length;
+    var buttons = {};
+
+    function pick(b) {
+      Object.keys(buttons).forEach(function (k) {
+        buttons[k].btn.setAttribute("aria-pressed", String(k === b));
+        buttons[k].path.classList.toggle("on", k === b);
+      });
+      var apps = b === "none" ? none : groups[b];
+      $("wheel-title").textContent = b === "none" ? "No color data" : b;
+      list.textContent = "";
+      if (!apps.length) {
+        var li = document.createElement("li");
+        li.className = "wheel-empty";
+        li.textContent = "No sample apps landed here.";
+        list.appendChild(li);
+      }
+      apps.slice().sort(byName).forEach(function (a) { list.appendChild(iconEl(a, "li")); });
+    }
+
+    BANDS.forEach(function (b, i) {
+      var a0 = i * step - Math.PI / 2, a1 = a0 + step;
+      var p = function (rad, ang) { return (cx + rad * Math.cos(ang)).toFixed(2) + " " + (cy + rad * Math.sin(ang)).toFixed(2); };
+      var path = document.createElementNS(NS, "path");
+      path.setAttribute("d", "M" + p(R, a0) + " A" + R + " " + R + " 0 0 1 " + p(R, a1) + " L" + p(r, a1) +
+        " A" + r + " " + r + " 0 0 0 " + p(r, a0) + " Z");
+      path.setAttribute("fill", BAND_SWATCH[b]);
+      path.setAttribute("class", "slice");
+      path.addEventListener("click", function () { pick(b); });
+      var mid = a0 + step / 2;
+      var t = document.createElementNS(NS, "text");
+      t.setAttribute("x", (cx + 74 * Math.cos(mid)).toFixed(1));
+      t.setAttribute("y", (cy + 74 * Math.sin(mid) + 5).toFixed(1));
+      t.setAttribute("class", "slice-n" + (b === "White" || b === "Yellow" ? " dark" : ""));
+      t.textContent = groups[b].length;
+      host.appendChild(path);
+      host.appendChild(t);
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "chip wheel-chip";
+      btn.setAttribute("aria-pressed", "false");
+      var sw = document.createElement("i");
+      sw.style.background = BAND_SWATCH[b];
+      btn.appendChild(sw);
+      btn.appendChild(document.createTextNode(b + " · " + groups[b].length));
+      btn.addEventListener("click", function () { pick(b); });
+      legend.appendChild(btn);
+      buttons[b] = { btn: btn, path: path };
+    });
+    var nb = document.createElement("button");
+    nb.type = "button";
+    nb.className = "chip wheel-chip";
+    nb.setAttribute("aria-pressed", "false");
+    var nsw = document.createElement("i");
+    nsw.className = "nocolor";
+    nb.appendChild(nsw);
+    nb.appendChild(document.createTextNode("No color data · " + none.length));
+    nb.addEventListener("click", function () { pick("none"); });
+    legend.appendChild(nb);
+    buttons.none = { btn: nb, path: document.createElementNS(NS, "path") };
+
+    var biggest = BANDS.reduce(function (best, b) { return groups[b].length > groups[best].length ? b : best; }, BANDS[0]);
+    pick(biggest);
+  }
+
   // ---------- wiring ----------
   LAYOUTS.forEach(function (l) {
     var b = document.createElement("button");
@@ -458,6 +547,7 @@
   });
 
   renderDock();
+  buildWheel();
   var fromHash = location.hash.replace("#layout-", "");
   choose(LAYOUTS.some(function (l) { return l.id === fromHash; }) ? fromHash : "before");
 })();
