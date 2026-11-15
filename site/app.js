@@ -134,12 +134,12 @@
   // ---------- the layouts ----------
   var LAYOUTS = [
     {
-      id: "before", group: "before", title: "Before: the mess", host: "c-scoot",
+      id: "before", group: "before", title: "Before: the mess", host: "c-scoot", who: "Scoot",
       text: "This is the sample phone as Scoot found it: apps wherever they landed when they were installed.",
       build: function () { return plainPages(messy(APPS)); }
     },
     {
-      id: "category-pages", group: "now", title: "Category pages", host: "c-sortle",
+      id: "category-pages", group: "now", title: "Category pages", host: "c-sortle", who: "Sortle",
       text: "Apps stay loose, clustered by what they do: all the Money apps together, then Media, and so on. Add --one-page-per-category to give each group its own page.",
       build: function () {
         var items = [];
@@ -148,37 +148,37 @@
       }
     },
     {
-      id: "folder-board", group: "now", title: "Folder board", host: "c-gridley",
+      id: "folder-board", group: "now", title: "Folder board", host: "c-gridley", who: "Gridley",
       text: "One named folder for each category, gathered on as few pages as possible. Tap a folder to look inside.",
       build: function () {
         return plainPages(groupBy(APPS, "c", CATEGORIES).map(function (g) { return folder(g.name, g.apps.slice().sort(byName)); }));
       }
     },
     {
-      id: "alphabetical", group: "new", title: "Alphabetical", host: "c-pagelet",
-      text: "A to Z, no thinking needed. Add --letter-folders to get one folder per letter instead.",
+      id: "alphabetical", group: "new", title: "Alphabetical", host: "c-blockapede", who: "Blockapede",
+      text: "Blockapede is made of letters, so of course it sorts A to Z. No thinking needed. Add --letter-folders for one folder per letter.",
       build: function () { return plainPages(APPS.slice().sort(byName)); }
     },
     {
-      id: "most-used", group: "new", title: "Most used", host: "c-scoot",
-      text: "Your busiest apps come first. It reads how often you open each app from a --usage file. Without one, it keeps your current order.",
+      id: "most-used", group: "new", title: "Most used", host: "c-toppy", who: "Toppy",
+      text: "Toppy wears the crown, and so do your busiest apps: they go first. It reads how often you open each app from a --usage file. No file? Your current order stays.",
       build: function () { return plainPages(APPS.slice().sort(byUse)); }
     },
     {
-      id: "time-of-day", group: "new", title: "Time of day", host: "c-lumi",
-      text: "A page for each part of the day: Morning, Work day, Evening and Anytime. Swipe through your day.",
+      id: "time-of-day", group: "new", title: "Time of day", host: "c-dayzee", who: "Dayzee",
+      text: "Dayzee is always half awake. You get one page for each part of the day: Morning, Work day, Evening and Anytime. Swipe through your day.",
       build: function () { return labeledPages(groupBy(APPS, "t", TIMES), byUse); }
     },
     {
-      id: "verb-folders", group: "new", title: "Verb folders", host: "c-sortle",
-      text: "Folders named for what you want to do: Talk, Watch, Listen, Make, Buy, Go, Track, Read, Play, Work, Browse and Tools.",
+      id: "verb-folders", group: "new", title: "Verb folders", host: "c-verbie", who: "Verbie",
+      text: "Verbie has four hands and things to do. Folders are named for actions: Talk, Watch, Listen, Make, Buy, Go, Track, Read, Play, Work, Browse and Tools.",
       build: function () {
         return plainPages(groupBy(APPS, "v", VERBS).map(function (g) { return folder(g.name, g.apps.slice().sort(byUse)); }));
       }
     },
     {
-      id: "rainbow", group: "new", title: "Rainbow", host: "c-lumi",
-      text: "Color bands from red through black, then the apps with no color data (striped here). Colors come from an --icon-colors file plus a built-in table for Apple's apps. They are not read from the phone.",
+      id: "rainbow", group: "new", title: "Rainbow", host: "c-rainbelle", who: "Rainbelle",
+      text: "Rainbelle lives in a rainbow and thinks you should too. Apps go in color bands from red through black, then the ones with no color data (striped here). Colors come from an --icon-colors file plus a built-in table for Apple's apps, not from the phone.",
       build: function () {
         var colored = APPS.filter(function (a) { return a.col; });
         var none = APPS.filter(function (a) { return !a.col; }).sort(byName);
@@ -191,8 +191,8 @@
       }
     },
     {
-      id: "thumb-reach", group: "new", title: "Thumb reach", host: "c-gridley",
-      text: "Like Most used, but on each page the top apps go in the bottom rows, where your thumb rests.",
+      id: "thumb-reach", group: "new", title: "Thumb reach", host: "c-reachlet", who: "Reachlet",
+      text: "Reachlet has one very long arm and no patience for top rows. Like Most used, but on each page the top apps go in the bottom rows, right where your thumb is.",
       build: function () {
         return chunk(APPS.slice().sort(byUse), PER_PAGE).map(function (p) {
           // Busiest apps fill the last rows; the quietest end up at the top.
@@ -201,13 +201,13 @@
       }
     },
     {
-      id: "places", group: "new", title: "Places", host: "c-scoot",
-      text: "A page for each place you use your phone: Home, Commute, Office, Travel, Gym and Everywhere.",
+      id: "places", group: "new", title: "Places", host: "c-packpin", who: "Packpin",
+      text: "Packpin goes everywhere. You get a page for each place: Home, Commute, Office, Travel, Gym and Everywhere.",
       build: function () { return labeledPages(groupBy(APPS, "p", PLACES), byUse); }
     },
     {
-      id: "new-and-review", group: "new", title: "New and review", host: "c-pagelet",
-      text: "Your newest apps on page 1, the rest by category, and a Review page for apps the --usage file never saw. Handy for a clean-out.",
+      id: "new-and-review", group: "new", title: "New and review", host: "c-lensley", who: "Lensley",
+      text: "Lensley looks very closely. Your newest apps go on page 1, the rest by category, and a Review page holds apps the --usage file never saw. Great for a clean-out.",
       build: function () {
         var review = APPS.filter(function (a) { return a.u === null; }).sort(byName);
         var rest = APPS.filter(function (a) { return a.u !== null; });
@@ -222,8 +222,8 @@
       }
     },
     {
-      id: "essentials", group: "new", title: "Essentials", host: "c-rewindle",
-      text: "One calm page of essentials (12 by default, change it with --essentials), and the rest in folders on later pages. No app is removed.",
+      id: "essentials", group: "new", title: "Essentials", host: "c-pebbs", who: "Pebbs",
+      text: "Pebbs keeps it calm: one page of essentials (12 by default, change it with --essentials) and everything else in folders on later pages. No app is removed.",
       build: function () {
         var sorted = APPS.slice().sort(byUse);
         var top = sorted.slice(0, 12);
@@ -235,8 +235,8 @@
       }
     },
     {
-      id: "life-areas", group: "new", title: "Life areas", host: "c-sortle",
-      text: "A page for each part of your life: Work, Money, Health, Family, Learning, Play and Everyday.",
+      id: "life-areas", group: "new", title: "Life areas", host: "c-slicey", who: "Slicey",
+      text: "Slicey is a pie chart of your whole life. You get a page for each slice: Work, Money, Health, Family, Learning, Play and Everyday.",
       build: function () { return labeledPages(groupBy(APPS, "a", AREAS), byUse); }
     }
   ];
@@ -331,6 +331,7 @@
       c.setAttribute("aria-pressed", String(c.dataset.id === layout.id));
     });
     $("host-title").textContent = layout.title;
+    $("host-name").textContent = layout.who;
     setTextWithFlags($("host-text"), layout.text);
     // The new layouts are not in 0.1.0 yet, so only show a command for ones that ship today.
     $("host-cmd").textContent = layout.group === "now" ? "organize-my-iphone apply " + layout.id + " --dry-run" : "";
@@ -413,7 +414,14 @@
     b.type = "button";
     b.className = "chip";
     b.dataset.id = l.id;
-    b.textContent = l.title;
+    var ic = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    ic.setAttribute("class", "chip-c");
+    ic.setAttribute("aria-hidden", "true");
+    var u = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    u.setAttribute("href", "#" + l.host);
+    ic.appendChild(u);
+    b.appendChild(ic);
+    b.appendChild(document.createTextNode(l.title));
     b.setAttribute("aria-pressed", "false");
     b.addEventListener("click", function () { choose(l.id); });
     $("chips-" + l.group).appendChild(b);

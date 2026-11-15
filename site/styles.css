@@ -646,3 +646,12 @@ pre .c { color: #9fe8dc; }
 @keyframes quippop { from { opacity: 0; transform: translateY(-85%) scale(0.9); } }
 .quip[hidden] { display: none; }
 .foot { margin-top: 110px; }
+
+/* ---------- layout critters ---------- */
+.chip { display: inline-flex; align-items: center; gap: 6px; padding-left: 6px; }
+.chip-c { width: 24px; height: 24px; flex: none; filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff); }
+.host-head { display: flex; align-items: flex-end; gap: 4px; }
+.host-name {
+  margin: 0 0 14px; font: italic 900 18px/1 var(--font-display); background: var(--sun); color: #1b1530;
+  border: 2px solid var(--line); border-radius: 8px; padding: 4px 10px; transform: rotate(-3deg);
+}
