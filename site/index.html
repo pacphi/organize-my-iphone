@@ -175,6 +175,7 @@
   </svg>
 
   <a class="skip" href="#main">Skip to content</a>
+  <div class="progress" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div><svg class="progress-rider" id="progress-rider"><use href="#c-scoot"/></svg></div>
 
   <header class="top">
     <a class="brand" href="./">
@@ -182,7 +183,9 @@
       <span>organize<b>-my-</b>iphone</span>
     </a>
     <nav aria-label="Sections">
-      <a href="#crew">How it works</a>
+      <a href="#why">Why</a>
+      <a href="#crew">The crew</a>
+      <a href="#tour">Commands</a>
       <a href="#layouts">Layouts</a>
       <a href="#safety">Safety</a>
       <a href="#start">Get started</a>
@@ -195,15 +198,16 @@
     <section class="hero panel halftone">
       <div class="hero-copy">
         <p class="burst" aria-label="Version 0.1.0, a first cut">v0.1.0 <span>first cut!</span></p>
-        <h1>Your Home Screen,<br><em>sorted.</em></h1>
-        <p class="lede">A command-line tool for your Mac. Plug in your iPhone with a cable. It reads your apps, sorts them into groups with a model that runs on your Mac, and shows you tidier layouts. Nothing on the phone changes until you say so.</p>
+        <h1>Your Home Screen<br>is a junk drawer.<br><em>Let's fix that.</em></h1>
+        <p class="lede">organize-my-iphone is a command-line tool for your Mac. Plug in your iPhone, and a small crew of critters reads your apps, sorts them into groups with a model that runs on your Mac, and lays out tidier Home Screens for you to try. Nothing on the phone moves until you say so. Pinky promise. Backed up, too.</p>
         <div class="cta">
-          <a class="btn btn-main" href="#layouts">Try the layouts</a>
-          <a class="btn" href="https://github.com/pacphi/organize-my-iphone">Get it on GitHub</a>
+          <a class="btn btn-main" href="#why">Show me how</a>
+          <a class="btn" href="#layouts">Skip to the layouts</a>
         </div>
       </div>
       <div class="hero-art" aria-hidden="true">
         <div class="bubble bubble-hero">Plug in. We'll tidy up!</div>
+        <p class="scroll-hint">Scroll down for the story ↓</p>
         <svg class="hero-c hc-1"><use href="#c-scoot"/></svg>
         <svg class="hero-c hc-2"><use href="#c-sortle"/></svg>
         <svg class="hero-c hc-3"><use href="#c-lumi"/></svg>
@@ -213,42 +217,95 @@
       </div>
     </section>
 
+
+    <!-- WHY: a four-panel comic that reveals as you scroll -->
+    <section id="why" class="section">
+      <h2 class="section-title reveal"><span>Why does this exist?</span></h2>
+      <p class="section-lede reveal">A short comic in four panels. Spoiler: it has a happy ending.</p>
+      <ol class="strip">
+        <li class="strip-panel panel reveal" style="--accent:#ff5d8f">
+          <span class="strip-num">1</span>
+          <div class="strip-art">
+            <div class="pile" aria-hidden="true"></div>
+            <svg class="strip-c" aria-hidden="true"><use href="#c-scoot"/></svg>
+            <span class="sfx">GULP!</span>
+          </div>
+          <h3>Apps pile up</h3>
+          <p>Every new app lands in the next empty spot. A few years later you have page after page in the order you happened to install things, plus a folder called "Stuff 2".</p>
+        </li>
+        <li class="strip-panel panel reveal" style="--accent:#ffd23f">
+          <span class="strip-num">2</span>
+          <div class="strip-art">
+            <div class="search" aria-hidden="true"><span>Where is it…</span></div>
+            <svg class="strip-c" aria-hidden="true"><use href="#c-pagelet"/></svg>
+            <span class="sfx">SWIPE…</span>
+          </div>
+          <h3>Finding things is a hunt</h3>
+          <p>You swipe through pages looking for that one app, give up, and type its name into search. Again. Your thumb deserves better.</p>
+        </li>
+        <li class="strip-panel panel reveal" style="--accent:#8ecdf7">
+          <span class="strip-num">3</span>
+          <div class="strip-art">
+            <div class="wiggle" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <svg class="strip-c" aria-hidden="true"><use href="#c-sortle"/></svg>
+            <span class="sfx">WOBBLE…</span>
+          </div>
+          <h3>Tidying by hand is a chore</h3>
+          <p>The iPhone has no "sort my Home Screen" button. Tidying means wiggly icons and dragging them one at a time, across pages, for a long, long time.</p>
+        </li>
+        <li class="strip-panel panel reveal" style="--accent:#3ad1c3">
+          <span class="strip-num">4</span>
+          <div class="strip-art">
+            <div class="tidy" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <svg class="strip-c" aria-hidden="true"><use href="#c-gridley"/></svg>
+            <span class="sfx">TA-DA!</span>
+          </div>
+          <h3>So the crew does it for you</h3>
+          <p>One command on your Mac sorts every app at once and shows you the results first. You pick the one you like. If you regret it, one more command puts everything back.</p>
+        </li>
+      </ol>
+      <div class="impact panel reveal">
+        <p><b>What you get:</b> apps grouped the way you think, found in fewer swipes. <b>What it costs:</b> a cable and a couple of minutes. <b>What it risks:</b> very little, because it saves a backup before every change and won't write anything without asking.</p>
+      </div>
+    </section>
+
     <!-- CREW / PIPELINE -->
     <section id="crew" class="section">
-      <h2 class="section-title"><span>Meet the crew</span></h2>
+      <button type="button" class="roamer roam-1" data-quips="scoot" aria-label="Poke Scoot"><svg aria-hidden="true"><use href="#c-scoot"/></svg></button>
+      <h2 class="section-title reveal"><span>Meet the crew</span></h2>
       <p class="section-lede">The tool works in steps. Each step saves its result in a folder on your Mac, so you can run any step again on its own. Here is who does what.</p>
       <ol class="crew">
-        <li class="card" style="--accent:#3ad1c3">
+        <li class="card reveal" style="--accent:#3ad1c3">
           <svg class="card-c" aria-hidden="true"><use href="#c-scoot"/></svg>
           <p class="step">Step 1 · <code>scan</code></p>
           <h3>Scoot</h3>
           <p>Reads the list of apps and your current Home Screen over the cable, using Apple Configurator's <code>cfgutil</code>. Saves a backup right away.</p>
         </li>
-        <li class="card" style="--accent:#ffb38a">
+        <li class="card reveal" style="--accent:#ffb38a">
           <svg class="card-c" aria-hidden="true"><use href="#c-pagelet"/></svg>
           <p class="step">Step 2 · <code>enrich</code></p>
           <h3>Pagelet</h3>
           <p>Looks up each app's App Store genre and description. This is the only step that goes online, and you can skip it with <code>--offline</code>.</p>
         </li>
-        <li class="card" style="--accent:#b79cff">
+        <li class="card reveal" style="--accent:#b79cff">
           <svg class="card-c" aria-hidden="true"><use href="#c-sortle"/></svg>
           <p class="step">Step 3 · <code>classify</code></p>
           <h3>Sortle</h3>
           <p>Puts each app in a group, like Money or Media. Simple rules handle the obvious ones. A model on your Mac (Ollama or Apple's own) decides the rest.</p>
         </li>
-        <li class="card" style="--accent:#ff8a5b">
+        <li class="card reveal" style="--accent:#ff8a5b">
           <svg class="card-c" aria-hidden="true"><use href="#c-gridley"/></svg>
           <p class="step">Step 4 · <code>plan</code></p>
           <h3>Gridley</h3>
           <p>Builds the new layouts and checks each one against iOS limits: 24 icons a page, 4 in the dock, 9 per folder page, 15 pages.</p>
         </li>
-        <li class="card" style="--accent:#8ecdf7">
+        <li class="card reveal" style="--accent:#8ecdf7">
           <svg class="card-c" aria-hidden="true"><use href="#c-lumi"/></svg>
           <p class="step">Step 5 · <code>preview</code></p>
           <h3>Lumi</h3>
           <p>Writes a web page that shows each proposal next to your current layout, so you can compare before anything changes.</p>
         </li>
-        <li class="card" style="--accent:#ffb347">
+        <li class="card reveal" style="--accent:#ffb347">
           <svg class="card-c" aria-hidden="true"><use href="#c-rewindle"/></svg>
           <p class="step">Only if you ask · <code>apply</code> · <code>restore</code></p>
           <h3>Rewindle</h3>
@@ -257,9 +314,78 @@
       </ol>
     </section>
 
+
+    <!-- TOUR: sticky terminal that changes as each command scrolls by -->
+    <section id="tour" class="section">
+      <h2 class="section-title reveal"><span>A tour of the commands</span></h2>
+      <p class="section-lede reveal">Scroll slowly. The terminal follows along. (It's example output, shortened. The apps are made up.)</p>
+      <div class="tour">
+        <div class="tour-sticky">
+          <div class="term" aria-hidden="true">
+            <div class="term-bar"><i></i><i></i><i></i><span id="term-title">Terminal</span></div>
+            <pre class="term-body" id="term-body"></pre>
+          </div>
+          <svg class="tour-c" id="tour-c" aria-hidden="true"><use href="#c-scoot"/></svg>
+        </div>
+        <ol class="tour-steps" id="tour-steps">
+          <li class="tour-step" data-step="doctor" data-host="c-scoot">
+            <p class="step"><code>doctor</code> · reads only</p>
+            <h3>"Is everybody here?"</h3>
+            <p>Checks for Apple Configurator's <code>cfgutil</code>, a connected and trusting iPhone, and a local model. Run it first. It changes nothing, it just takes attendance.</p>
+          </li>
+          <li class="tour-step" data-step="run" data-host="c-lumi">
+            <p class="step"><code>run</code> · reads only</p>
+            <h3>The whole show in one go</h3>
+            <p>Runs scan, enrich, classify, plan and preview back to back, then opens the preview page with <code>--open</code>. This is the one most people need. Add <code>--offline</code> to skip the App Store lookup.</p>
+          </li>
+          <li class="tour-step" data-step="scan" data-host="c-scoot">
+            <p class="step"><code>scan</code> · reads only</p>
+            <h3>Scoot takes a census</h3>
+            <p>Reads every app and your current layout, and saves a backup of that layout straight away. Belt, meet braces.</p>
+          </li>
+          <li class="tour-step" data-step="enrich" data-host="c-pagelet">
+            <p class="step"><code>enrich</code> · no phone needed</p>
+            <h3>Pagelet does the reading</h3>
+            <p>Looks up each app's App Store genre and description, so the sorting has more to go on. It sends Apple only the app IDs. Skip it with <code>--offline</code>.</p>
+          </li>
+          <li class="tour-step" data-step="classify" data-host="c-sortle">
+            <p class="step"><code>classify</code> · no phone needed</p>
+            <h3>Sortle files everything</h3>
+            <p>Rules handle the sure things. A model on your Mac (Ollama, or Apple's on-device model) decides the rest. No model? Rules do it all. Want your own groups? Pass a <code>--taxonomy</code> file.</p>
+          </li>
+          <li class="tour-step" data-step="plan" data-host="c-gridley">
+            <p class="step"><code>plan</code> · no phone needed</p>
+            <h3>Gridley draws the floor plans</h3>
+            <p>Builds each layout and checks it against the iOS limits. A plan that would drop an icon, show one twice, or overflow a page is refused, not "fixed later".</p>
+          </li>
+          <li class="tour-step" data-step="preview" data-host="c-lumi">
+            <p class="step"><code>preview</code> · no phone needed</p>
+            <h3>Lumi lights up the options</h3>
+            <p>Writes a web page with each proposal next to your current layout. Look, compare, change your mind as often as you like. It's free to window-shop.</p>
+          </li>
+          <li class="tour-step" data-step="dry" data-host="c-rewindle">
+            <p class="step"><code>apply --dry-run</code> · reads only</p>
+            <h3>The rehearsal</h3>
+            <p>Shows exactly how many icons would move, without writing anything. Always rehearse first.</p>
+          </li>
+          <li class="tour-step" data-step="apply" data-host="c-rewindle">
+            <p class="step"><code>apply</code> · <strong>writes</strong></p>
+            <h3>The big moment</h3>
+            <p>Rereads the phone, checks the plan still fits, shows the size of the change, saves a backup, and asks you to confirm. Only then does it write.</p>
+          </li>
+          <li class="tour-step" data-step="restore" data-host="c-rewindle">
+            <p class="step"><code>restore</code> · <strong>writes</strong></p>
+            <h3>Rewindle's favorite trick</h3>
+            <p>Puts a backed-up layout back, after asking. Regret has never been so cheap.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
     <!-- LAYOUT PLAYGROUND -->
     <section id="layouts" class="section">
-      <h2 class="section-title"><span>Try a layout</span></h2>
+      <button type="button" class="roamer roam-2" data-quips="lumi" aria-label="Poke Lumi"><svg aria-hidden="true"><use href="#c-lumi"/></svg></button>
+      <h2 class="section-title reveal"><span>Try a layout</span></h2>
       <p class="section-lede">Pick a layout to see how it would arrange a sample phone. The apps here are made up. Your own phone gets the same treatment with your real apps.</p>
 
       <div class="play panel">
@@ -318,7 +444,7 @@
 
     <!-- SAFETY + PRIVACY -->
     <section id="safety" class="section two-up">
-      <div class="panel promise" style="--accent:#ffb347">
+      <div class="panel promise reveal" style="--accent:#ffb347">
         <svg class="promise-c" aria-hidden="true"><use href="#c-rewindle"/></svg>
         <h2>Safe by design</h2>
         <ul>
@@ -330,7 +456,7 @@
           <li>Try <code>apply --dry-run</code> first to see exactly what would move.</li>
         </ul>
       </div>
-      <div class="panel promise" style="--accent:#ffb38a">
+      <div class="panel promise reveal" style="--accent:#ffb38a">
         <svg class="promise-c" aria-hidden="true"><use href="#c-pagelet"/></svg>
         <h2>Private by default</h2>
         <ul>
@@ -344,7 +470,7 @@
 
     <!-- GET STARTED -->
     <section id="start" class="section">
-      <h2 class="section-title"><span>Get started</span></h2>
+      <h2 class="section-title reveal"><span>Get started</span></h2>
       <div class="start panel">
         <div class="start-need">
           <h3>You need</h3>
@@ -390,11 +516,15 @@ swift run organize-my-iphone restore</code></pre>
   </main>
 
   <footer class="foot">
+    <button type="button" class="roamer roam-3" data-quips="rewindle" aria-label="Poke Rewindle"><svg aria-hidden="true"><use href="#c-rewindle"/></svg></button>
     <p><a href="https://github.com/pacphi/organize-my-iphone">Source on GitHub</a> · <a href="https://github.com/pacphi/organize-my-iphone/blob/main/docs/usage.md">Usage guide</a> · <a href="https://github.com/pacphi/organize-my-iphone/blob/main/docs/architecture.md">Architecture</a></p>
     <p>organize-my-iphone is an independent project. It is not made by, endorsed by, or affiliated with Apple. iPhone and Apple Configurator are trademarks of Apple Inc. The critters are original characters drawn for this site, and the apps in the sample phone are made up.</p>
     <p>No license has been chosen for the code yet.</p>
   </footer>
 
+  <div class="quip bubble" id="quip" role="status" aria-live="polite" hidden></div>
+
   <script src="app.js"></script>
+  <script src="story.js"></script>
 </body>
 </html>
