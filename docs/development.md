@@ -175,6 +175,15 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
+`.github/workflows/pages.yml` publishes the project website in `site/` to GitHub Pages. It runs on pushes to `main` that touch `site/` or the workflow, or by hand from the Actions tab. The site is plain HTML, CSS and JavaScript with no build step and no outside requests. To preview it locally, serve the folder and open it in a browser:
+
+```sh
+python3 -m http.server 8000 --directory site
+open http://localhost:8000/
+```
+
+Pages must be turned on once in the repository settings (Settings > Pages > Source: GitHub Actions) before the first deploy can succeed.
+
 `.github/dependabot.yml` opens weekly pull requests for newer Swift packages and GitHub Actions.
 
 ## Code style

@@ -6,6 +6,8 @@
 ![iPhone over USB](https://img.shields.io/badge/iPhone-over%20USB-0A84FF)
 ![Models run locally](https://img.shields.io/badge/models-run%20locally-2EA44F)
 
+**Website:** [pacphi.github.io/organize-my-iphone](https://pacphi.github.io/organize-my-iphone/), with a phone you can click through to try each layout.
+
 A command-line tool for macOS that reads the apps on a connected iPhone, sorts them into categories with a model that runs on your Mac, and proposes a tidier Home Screen. You review the proposals in a browser, apply the one you like, and can put the old layout back at any time.
 
 It offers twelve ways to organize:
@@ -119,10 +121,11 @@ Tests/
   OrganizeAdaptersTests/   Unit tests with faked processes and HTTP, plus one real-subprocess test
   Fixtures/fake-cfgutil    A stand-in for cfgutil, used by tests, CI and the demo script
 docs/                  Usage, architecture, product requirements, personae, journey, use cases
+site/                  The project website, published to GitHub Pages
 examples/              A sample custom taxonomy
 scripts/demo.sh        End-to-end run against the fake iPhone
 Makefile               Shortcuts for building, testing and running; `make` lists them
-.github/               CI on macOS runners, release workflow, Dependabot
+.github/               CI on macOS runners, release and Pages workflows, Dependabot
 ```
 
 ## Development
