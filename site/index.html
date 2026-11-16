@@ -400,7 +400,7 @@
     <!-- HERO -->
     <section class="hero panel halftone">
       <div class="hero-copy">
-        <p class="burst" aria-label="Version 0.1.0, a first cut">v0.1.0 <span>first cut!</span></p>
+        <p class="burst">A command-line tool for macOS</p>
         <h1>Your Home Screen<br>is a junk drawer.<br><em>Let's fix that.</em></h1>
         <p class="lede">organize-my-iphone is a command-line tool for your Mac. Plug in your iPhone, and a small crew of critters reads your apps, sorts them into groups with a model that runs on your Mac, and lays out twelve tidier Home Screens for you to try. Nothing on the phone moves until you say so. Pinky promise. Backed up, too.</p>
         <div class="cta">
@@ -476,43 +476,43 @@
     <section id="crew" class="section">
       <button type="button" class="roamer roam-1" data-quips="scoot" aria-label="Poke Scoot"><svg aria-hidden="true"><use href="#c-scoot"/></svg></button>
       <h2 class="section-title reveal"><span>Meet the crew</span></h2>
-      <p class="section-lede">The tool works in steps. Each step saves its result in a folder on your Mac, so you can run any step again on its own. Here is who does what.</p>
+      <p class="section-lede">Six critters, six jobs. Each step saves its work on your Mac, so any one can run again on its own. The tour below shows each one in action.</p>
       <ol class="crew">
         <li class="card reveal" style="--accent:#3ad1c3">
           <svg class="card-c" aria-hidden="true"><use href="#c-scoot"/></svg>
           <p class="step">Step 1 · <code>scan</code></p>
           <h3>Scoot</h3>
-          <p>Reads the list of apps and your current Home Screen over the cable, using Apple Configurator's <code>cfgutil</code>. Saves a backup right away.</p>
+          <p>Reads your apps and Home Screen over the cable, and backs it up.</p>
         </li>
         <li class="card reveal" style="--accent:#ffb38a">
           <svg class="card-c" aria-hidden="true"><use href="#c-pagelet"/></svg>
           <p class="step">Step 2 · <code>enrich</code></p>
           <h3>Pagelet</h3>
-          <p>Looks up each app's App Store genre and description. This is the only step that goes online, and you can skip it with <code>--offline</code>.</p>
+          <p>Looks each app up in the App Store, so sorting has more to go on.</p>
         </li>
         <li class="card reveal" style="--accent:#b79cff">
           <svg class="card-c" aria-hidden="true"><use href="#c-sortle"/></svg>
           <p class="step">Step 3 · <code>classify</code></p>
           <h3>Sortle</h3>
-          <p>Puts each app in a group, like Money or Media. Simple rules handle the obvious ones. A model on your Mac (Ollama or Apple's own) decides the rest.</p>
+          <p>Puts every app in a group, with a model that runs on your Mac.</p>
         </li>
         <li class="card reveal" style="--accent:#ff8a5b">
           <svg class="card-c" aria-hidden="true"><use href="#c-gridley"/></svg>
           <p class="step">Step 4 · <code>plan</code></p>
           <h3>Gridley</h3>
-          <p>Builds all twelve layouts and checks each one against iOS limits: 24 icons a page, 4 in the dock, 9 per folder page, 15 pages.</p>
+          <p>Builds twelve layouts that all fit within iOS limits.</p>
         </li>
         <li class="card reveal" style="--accent:#8ecdf7">
           <svg class="card-c" aria-hidden="true"><use href="#c-lumi"/></svg>
           <p class="step">Step 5 · <code>preview</code></p>
           <h3>Lumi</h3>
-          <p>Writes a web page that shows each proposal next to your current layout, so you can compare before anything changes.</p>
+          <p>Shows every layout next to your current one, before anything changes.</p>
         </li>
         <li class="card reveal" style="--accent:#ffb347">
           <svg class="card-c" aria-hidden="true"><use href="#c-rewindle"/></svg>
           <p class="step">Only if you ask · <code>apply</code> · <code>restore</code></p>
           <h3>Rewindle</h3>
-          <p>Backs up the phone, shows how much will move, and asks you first. Then writes the layout you picked. Changed your mind? <code>restore</code> puts the old one back.</p>
+          <p>Writes the layout you pick, after a backup and a yes. Puts it back on request.</p>
         </li>
       </ol>
     </section>
@@ -521,7 +521,7 @@
     <!-- TOUR: sticky terminal that changes as each command scrolls by -->
     <section id="tour" class="section">
       <h2 class="section-title reveal"><span>A tour of the commands</span></h2>
-      <p class="section-lede reveal">Scroll slowly. The terminal follows along. (It's example output, shortened. The apps are made up.)</p>
+      <p class="section-lede reveal">Scroll slowly. The terminal follows along.</p>
       <div class="tour">
         <div class="tour-sticky">
           <div class="term" aria-hidden="true">
@@ -550,7 +550,7 @@
             <p class="step"><code>enrich</code> · no phone needed</p>
             <h3>Pagelet does the reading</h3>
             <p>Looks up each app's App Store genre and description, so the sorting has more to go on. It sends Apple only the app IDs. Skip it with <code>--offline</code>.</p>
-            <p class="soon-note">New: add <code>--icon-colors-from-store</code> and it also fetches each app's icon to find its color for the Rainbow layout. <a href="#colors">See the color wheel</a>.</p>
+            <p class="soon-note">Add <code>--icon-colors-from-store</code> and it also fetches each app's icon to find its color for the Rainbow layout. <a href="#colors">See the color wheel</a>.</p>
           </li>
           <li class="tour-step" data-step="classify" data-host="c-sortle">
             <p class="step"><code>classify</code> · no phone needed</p>
@@ -590,7 +590,7 @@
     <section id="layouts" class="section">
       <button type="button" class="roamer roam-2" data-quips="lumi" aria-label="Poke Lumi"><svg aria-hidden="true"><use href="#c-lumi"/></svg></button>
       <h2 class="section-title reveal"><span>Try a layout</span></h2>
-      <p class="section-lede">Twelve layouts, one tidy phone at a time. Pick one to see how it would arrange a sample phone. Every layout has its own critter to explain it. The apps are made up; your phone gets the same treatment with your real ones.</p>
+      <p class="section-lede">Twelve layouts, one tidy phone at a time. Pick one to see how it would arrange a sample phone, with its own critter to explain it. Your phone gets the same treatment with your real apps.</p>
 
       <div class="play panel">
         <div class="picker">
@@ -599,12 +599,13 @@
             <div class="chips" id="chips-before"></div>
           </div>
           <div class="picker-group">
-            <h3>The originals</h3>
-            <div class="chips" id="chips-now"></div>
+            <h3>Works right away</h3>
+            <div class="chips" id="chips-ready"></div>
           </div>
           <div class="picker-group">
-            <h3>New layouts <span class="tag">new</span></h3>
-            <div class="chips" id="chips-new"></div>
+            <h3>Better with your data</h3>
+            <p class="picker-note">These read an optional <code>--usage</code>, <code>--recent</code> or icon-colors file. Without one, they make a sensible guess and say so.</p>
+            <div class="chips" id="chips-data"></div>
           </div>
         </div>
 
@@ -642,7 +643,6 @@
             <p class="host-title" id="host-title"></p>
             <p id="host-text"></p>
             <p class="host-cmd" id="host-cmd"></p>
-            <p class="host-soon" id="host-soon" hidden>New since 0.1.0. So far it has only been applied to the pretend iPhone, so rehearse with --dry-run first.</p>
           </div>
         </div>
       </div>
@@ -651,7 +651,7 @@
 
     <!-- COLOR WHEEL -->
     <section id="colors" class="section">
-      <h2 class="section-title reveal"><span>Rainbelle's color wheel</span> <span class="tag">new</span></h2>
+      <h2 class="section-title reveal"><span>Rainbelle's color wheel</span></h2>
       <p class="section-lede reveal">The Rainbow layout needs to know what color each icon is. Your phone won't say, so Rainbelle finds out another way, and you get the final word.</p>
       <div class="wheel-panel panel reveal">
         <div class="wheel-how">
@@ -684,7 +684,7 @@
           <li>A layout is refused if it would drop an icon, show one twice, or break an iOS limit.</li>
           <li>The dock is never rearranged.</li>
           <li>Web clips and anything the tool doesn't recognize are kept, not thrown away.</li>
-          <li>Try <code>apply --dry-run</code> first to see exactly what would move.</li>
+          <li>Try <code>apply --dry-run</code> first to see exactly what would move. Writing a layout goes through Apple's <code>cfgutil</code>, which can behave differently on different iOS versions, so keep your backups.</li>
         </ul>
       </div>
       <div class="panel promise reveal" style="--accent:#ffb38a">
@@ -709,7 +709,7 @@
           <h3>You need</h3>
           <ul>
             <li>A Mac with macOS 15 or later</li>
-            <li>Xcode 26 or later, to build</li>
+            <li><a href="https://apps.apple.com/app/xcode/id497799835">Xcode</a> 26 or later, to build. It includes Swift 6.2, so there's nothing else to install.</li>
             <li><a href="https://apps.apple.com/app/apple-configurator/id1037126344">Apple Configurator</a>, which includes <code>cfgutil</code></li>
             <li>An iPhone on a cable, unlocked, that trusts this Mac</li>
             <li>Optional: <a href="https://ollama.com">Ollama</a>, or macOS 26 with Apple Intelligence on</li>
@@ -739,20 +739,12 @@ swift run organize-my-iphone restore</code></pre>
       </div>
     </section>
 
-    <section class="status-strip panel halftone">
-      <svg class="status-c" aria-hidden="true"><use href="#c-sortle"/></svg>
-      <div>
-        <h2>Honest status</h2>
-        <p>Version 0.1.0 is a first cut. The logic has unit tests, and every change runs the whole pipeline against a pretend iPhone. It has been run from scan to restore on one real iPhone so far. The ten newer layouts have so far been applied only to the pretend iPhone, though each passes the same checks before <code>apply</code> will write it. Writing a layout relies on <code>cfgutil</code>, which behaves differently on different iOS versions, so use <code>--dry-run</code> first and keep your backups.</p>
-      </div>
-    </section>
   </main>
 
   <footer class="foot">
     <button type="button" class="roamer roam-3" data-quips="rewindle" aria-label="Poke Rewindle"><svg aria-hidden="true"><use href="#c-rewindle"/></svg></button>
     <p><a href="https://github.com/pacphi/organize-my-iphone">Source on GitHub</a> · <a href="https://github.com/pacphi/organize-my-iphone/blob/main/docs/usage.md">Usage guide</a> · <a href="https://github.com/pacphi/organize-my-iphone/blob/main/docs/architecture.md">Architecture</a></p>
     <p>organize-my-iphone is an independent project. It is not made by, endorsed by, or affiliated with Apple. iPhone and Apple Configurator are trademarks of Apple Inc. The critters are original characters drawn for this site, and the apps in the sample phone are made up.</p>
-    <p>No license has been chosen for the code yet.</p>
   </footer>
 
   <div class="quip bubble" id="quip" role="status" aria-live="polite" hidden></div>

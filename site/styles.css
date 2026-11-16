@@ -174,7 +174,7 @@ code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(127, 1
 
 .hero-art { position: relative; aspect-ratio: 1 / 0.9; min-height: 260px; margin-top: 60px; }
 /* Sticker outline so thin ink lines stay visible on dark paper too. */
-.hero-c, .host-c, .promise-c, .status-c, .brand-mark {
+.hero-c, .host-c, .promise-c, .brand-mark {
   filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
     drop-shadow(3px 4px 0 rgba(27, 21, 48, 0.3));
 }
@@ -479,22 +479,6 @@ pre code { background: none; padding: 0; font-size: inherit; }
 pre .c { color: #9fe8dc; }
 .note { color: var(--muted); font-size: 14px; margin: 12px 0 0; }
 
-/* ---------- status strip ---------- */
-.status-strip {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  margin-top: 56px;
-  padding: 24px;
-  max-width: 1088px;
-}
-@media (min-width: 1121px) { .status-strip { margin-left: auto; margin-right: auto; } }
-@media (max-width: 1120px) { .status-strip { margin-left: 16px; margin-right: 16px; } }
-.status-c { width: 96px; height: 96px; flex: none; }
-.status-strip h2 { font: italic 900 30px/1 var(--font-display); margin: 0 0 8px; }
-.status-strip p { margin: 0; }
-@media (max-width: 600px) { .status-strip { flex-direction: column; align-items: flex-start; } }
-
 /* ---------- footer ---------- */
 .foot { max-width: 1120px; margin: 56px auto 0; padding: 24px 16px 40px; color: var(--muted); font-size: 14px; border-top: 3px dashed var(--line); }
 .foot p { margin: 0 0 8px; }
@@ -687,3 +671,12 @@ pre .c { color: #9fe8dc; }
 .wheel-empty { color: #fff; font-size: 14px; grid-column: 1 / -1; }
 .soon-note { font-size: 14px; color: var(--muted); }
 .wheel-steps code, .soon-note code, .bubble-host code { white-space: nowrap; }
+.picker-note { font-size: 13px; color: var(--muted); margin: -2px 0 8px; }
+.picker-note code { white-space: nowrap; }
+
+/* Sample-app glyphs: white comic line art with a little ink shadow. */
+.tile .glyph { width: 62%; height: 62%; fill: none; stroke: #fff; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 1.5px 0 rgba(27, 21, 48, 0.45)); overflow: visible; }
+.tile .glyph .f { fill: #fff; }
+.tile .glyph .thin { stroke-width: 1.2; opacity: 0.7; }
+.dock .tile .glyph { width: 58%; height: 58%; }
