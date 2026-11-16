@@ -152,7 +152,7 @@
       build: function () { return plainPages(messy(APPS)); }
     },
     {
-      id: "category-pages", group: "now", title: "Category pages", host: "c-sortle", who: "Sortle",
+      id: "category-pages", group: "ready", title: "Category pages", host: "c-sortle", who: "Sortle",
       text: "Apps stay loose, clustered by what they do: all the Money apps together, then Media, and so on. Add --one-page-per-category to give each group its own page.",
       build: function () {
         var items = [];
@@ -161,14 +161,14 @@
       }
     },
     {
-      id: "folder-board", group: "now", title: "Folder board", host: "c-gridley", who: "Gridley",
+      id: "folder-board", group: "ready", title: "Folder board", host: "c-gridley", who: "Gridley",
       text: "One named folder for each category, gathered on as few pages as possible. Tap a folder to look inside.",
       build: function () {
         return plainPages(groupBy(APPS, "c", CATEGORIES).map(function (g) { return folder(g.name, g.apps.slice().sort(byName)); }));
       }
     },
     {
-      id: "alphabetical", group: "new", title: "Alphabetical", host: "c-blockapede", who: "Blockapede",
+      id: "alphabetical", group: "ready", title: "Alphabetical", host: "c-blockapede", who: "Blockapede",
       text: "Blockapede is made of letters, so of course it sorts A to Z. No thinking needed. Add --letter-folders for one folder per letter.",
       build: function () {
         return chunk(APPS.slice().sort(byName), PER_PAGE).map(function (p) {
@@ -177,24 +177,24 @@
       }
     },
     {
-      id: "most-used", group: "new", title: "Most used", host: "c-toppy", who: "Toppy",
+      id: "most-used", group: "data", title: "Most used", host: "c-toppy", who: "Toppy",
       text: "Toppy wears the crown, and so do your busiest apps: they fill page 1. Usage comes from a --usage file (copy the order from Screen Time). No file? Your current icon order stands in, and the preview says so.",
       build: function () { return plainPages(APPS.slice().sort(byUse)); }
     },
     {
-      id: "time-of-day", group: "new", title: "Time of day", host: "c-dayzee", who: "Dayzee",
+      id: "time-of-day", group: "ready", title: "Time of day", host: "c-dayzee", who: "Dayzee",
       text: "Dayzee is always half awake. Every part of the day gets its own page: Morning, Work day, Evening and Anytime. Pair the pages with a Focus in Settings for a Home Screen that changes with your day.",
       build: function () { return labeledPages(groupBy(APPS, "t", TIMES), byUse); }
     },
     {
-      id: "verb-folders", group: "new", title: "Verb folders", host: "c-verbie", who: "Verbie",
+      id: "verb-folders", group: "ready", title: "Verb folders", host: "c-verbie", who: "Verbie",
       text: "Verbie has four hands and things to do. Folders are named for actions: Talk, Watch, Listen, Make, Buy, Go, Track, Read, Play, Work, Browse and Tools.",
       build: function () {
         return plainPages(groupBy(APPS, "v", VERBS).map(function (g) { return folder(g.name, g.apps.slice().sort(byUse)); }));
       }
     },
     {
-      id: "rainbow", group: "new", title: "Rainbow", host: "c-rainbelle", who: "Rainbelle",
+      id: "rainbow", group: "data", title: "Rainbow", host: "c-rainbelle", who: "Rainbelle",
       text: "Rainbelle lives in a rainbow and thinks you should too. Apps go in 11 color bands, red through black, then any with no color data (striped here). Colors come from a built-in table for Apple's apps, from App Store icons if you add --icon-colors-from-store, and from your own --icon-colors file, which wins. Wrong match? Fix it on the color wheel below.",
       build: function () {
         var colored = APPS.filter(function (a) { return a.col; });
@@ -208,7 +208,7 @@
       }
     },
     {
-      id: "thumb-reach", group: "new", title: "Thumb reach", host: "c-reachlet", who: "Reachlet",
+      id: "thumb-reach", group: "data", title: "Thumb reach", host: "c-reachlet", who: "Reachlet",
       text: "Reachlet has one very long arm and no patience for top rows. Same order as Most used, but on every full page the top apps sit in the bottom rows: rank 1 bottom left. A page that isn't full keeps plain order, because iOS slides icons up to fill gaps.",
       build: function () {
         return chunk(APPS.slice().sort(byUse), PER_PAGE).map(function (p) {
@@ -221,12 +221,12 @@
       }
     },
     {
-      id: "places", group: "new", title: "Places", host: "c-packpin", who: "Packpin",
+      id: "places", group: "ready", title: "Places", host: "c-packpin", who: "Packpin",
       text: "Packpin goes everywhere. Each place gets its own page: Home, Commute, Office, Travel, Gym and Everywhere. Pair them with a Focus in Settings so the right page shows up in the right place.",
       build: function () { return labeledPages(groupBy(APPS, "p", PLACES), byUse); }
     },
     {
-      id: "new-and-review", group: "new", title: "New and review", host: "c-lensley", who: "Lensley",
+      id: "new-and-review", group: "data", title: "New and review", host: "c-lensley", who: "Lensley",
       text: "Lensley looks very closely. Your newest apps go on page 1 (from a --recent file, or a best guess from your layout), the rest by category, and a Review page at the back holds apps your --usage file never mentions. Delete candidates, basically.",
       build: function () {
         var review = APPS.filter(function (a) { return a.u === null; }).sort(byName);
@@ -242,7 +242,7 @@
       }
     },
     {
-      id: "essentials", group: "new", title: "Essentials", host: "c-pebbs", who: "Pebbs",
+      id: "essentials", group: "data", title: "Essentials", host: "c-pebbs", who: "Pebbs",
       text: "Pebbs keeps it calm: one page of essentials (12 by default, up to 24 with --essentials) and everything else in category folders on later pages. No app is removed. Tip: hide the other pages on the phone for a truly zen Home Screen.",
       build: function () {
         var sorted = APPS.slice().sort(byUse);
@@ -255,7 +255,7 @@
       }
     },
     {
-      id: "life-areas", group: "new", title: "Life areas", host: "c-slicey", who: "Slicey",
+      id: "life-areas", group: "ready", title: "Life areas", host: "c-slicey", who: "Slicey",
       text: "Slicey is a pie chart of your whole life. You get a page for each slice: Work, Money, Health, Family, Learning, Play and Everyday.",
       build: function () { return labeledPages(groupBy(APPS, "a", AREAS), byUse); }
     }
@@ -269,13 +269,76 @@
 
   function initials(name) { return name.slice(0, 1); }
 
+  // Original line-art glyphs for the made-up sample apps (24x24, drawn for this site).
+  // Each one hints at what the app does, without copying any real app's icon.
+  var GLYPHS = {
+    Mail: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/>',
+    Notes: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+    Calendar: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.4" class="f"/>',
+    Reminders: '<path d="M5 7l1.5 1.5L9 6M5 13l1.5 1.5L9 12M5 19l1.5 1.5L9 18M12 7.5h7M12 13.5h7M12 19.5h7"/>',
+    Weather: '<circle cx="9" cy="9" r="3.5"/><path d="M9 2.5v1.5M2.5 9H4M4.4 4.4l1 1M13.6 4.4l-1 1"/><path d="M8 20h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.4 1.6A2.8 2.8 0 0 0 8 20z"/>',
+    Clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>',
+    Docs: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+    Sheets: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/>',
+    Meet: '<rect x="3" y="7" width="12" height="10" rx="2"/><path d="M15 11l6-3.5v9L15 13z"/>',
+    Slides: '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 21h8M7 12l3-3 2 2 4-4"/>',
+    Terminal: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10l3 2.5L7 15M12 15h5"/>',
+    Muse: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 16l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
+    Sketchbot: '<path d="M14.5 4.5l5 5L10 19H5v-5z"/><path d="M12.5 6.5l5 5"/>',
+    Voicey: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/>',
+    Bank: '<path d="M3 9l9-5 9 5zM5 9v8M9.5 9v8M14.5 9v8M19 9v8M3 20h18"/>',
+    Wallet: '<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M15 12.5h6M3 9.5h18"/>',
+    Stocks: '<path d="M3 20h18M4 16l5-5 4 3 7-8"/><path d="M16 6h4v4"/>',
+    Budget: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5V12l6 6"/>',
+    Maps: '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+    Rides: '<path d="M5 16V11l2-5h10l2 5v5z"/><path d="M5 11h14"/><circle cx="8" cy="16.5" r="1.8" class="f"/><circle cx="16" cy="16.5" r="1.8" class="f"/>',
+    Parking: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 17V8h3.5a2.5 2.5 0 0 1 0 5H10"/>',
+    Eats: '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16.5 21V3c-2.5 1.5-3.5 4-3.5 7.5h3.5"/>',
+    Shop: '<path d="M5 8h14l-1 13H6z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>',
+    Trips: '<path d="M10.5 13.5L3 11l1.5-1.5 8 .5 4.5-5c1-1 2.8-1.2 3.2-.7.5.4.3 2.2-.7 3.2l-5 4.5.5 8-1.5 1.5-2.5-7.5-3 3v2.5L6.5 21 5 18l-3-1.5 1.5-1.5H6z"/>',
+    Music: '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',
+    Pods: '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>',
+    Movies: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9v6l5-3z"/>',
+    News: '<path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-4 0M7 9h7M7 12.5h7M7 16h4"/>',
+    Books: '<path d="M4 5.5C6.5 4 9.5 4 12 6c2.5-2 5.5-2 8-.5V19c-2.5-1.5-5.5-1.5-8 .5-2.5-2-5.5-2-8-.5z"/><path d="M12 6v13.5"/>',
+    Photos: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M3.5 17l5-4.5 3.5 3 3-2.5 5.5 4.5"/>',
+    Home: '<path d="M3.5 11L12 4l8.5 7M6 9.5V20h12V9.5M10 20v-5h4v5"/>',
+    Steps: '<path d="M7 4c1.7 0 2.5 2 2.5 4.5S8.5 13 7 13s-2.5-2-2.5-4.5S5.3 4 7 4zM5.5 15.5h3M17 9c1.7 0 2.5 2 2.5 4.5S18.5 18 17 18s-2.5-2-2.5-4.5S15.3 9 17 9zM15.5 20.5h3"/>',
+    Sleep: '<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/><path d="M15 4h3l-3 3.5h3"/>',
+    Health: '<path d="M12 20s-7.5-4.5-7.5-10A4.2 4.2 0 0 1 12 7.5 4.2 4.2 0 0 1 19.5 10c0 5.5-7.5 10-7.5 10z"/><path d="M7 12h2.5l1.5-2.5 2 5 1.5-2.5H17"/>',
+    Puzzle: '<path d="M5 9h3.2a2 2 0 1 1 3.6 0H15v3.2a2 2 0 1 1 0 3.6V19h-3.2a2 2 0 1 0-3.6 0H5v-3.2a2 2 0 1 0 0-3.6z"/>',
+    Racer: '<path d="M5 21V4M5 4h13l-2.5 4L18 12H5"/><path d="M9 4v8M13 4v8M5 8h13" class="thin"/>',
+    Friends: '<circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M15.5 14.2a4.5 4.5 0 0 1 5 4.8"/>',
+    Garden: '<path d="M12 21v-8M12 13c0-4 3-7 7.5-7 0 4.5-3 7-7.5 7zM12 15c0-3-2.5-5.5-6.5-5.5 0 3.5 2.5 5.5 6.5 5.5z"/>',
+    Settings: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+    Passwords: '<circle cx="8" cy="12" r="4"/><path d="M12 12h9M17.5 12v3M20.5 12v2.5"/>',
+    VPN: '<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/>',
+    Files: '<path d="M3.5 7a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
+    Call: '<path d="M6.5 3.5l3 .5 1.5 4-2 1.5a10 10 0 0 0 5.5 5.5l1.5-2 4 1.5.5 3c0 1.2-1 2-2 2C11 20 4 13 4 5.5c0-1 .8-2 2.5-2z"/>',
+    Text: '<path d="M4 5h16v11H11l-5 4v-4H4z"/><path d="M8 9.5h8M8 12.5h5"/>',
+    Web: '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+    Snap: '<path d="M4 8h3.5L9 5.5h6L16.5 8H20v11H4z"/><circle cx="12" cy="13" r="3.5"/>'
+  };
+
+  function glyphSvg(name) {
+    var g = GLYPHS[name];
+    if (!g) return null;
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("class", "glyph");
+    // Static markup defined above, never user input.
+    svg.innerHTML = g;
+    return svg;
+  }
+
   function iconEl(app, tag) {
     var el = document.createElement(tag || "div");
     el.className = "icon";
     var tile = document.createElement("span");
     tile.className = "tile" + (app.col ? "" : " nocolor");
     if (app.col) tile.style.background = "linear-gradient(160deg, " + app.col + ", " + shade(app.col) + ")";
-    tile.textContent = initials(app.n);
+    var g = glyphSvg(app.n);
+    if (g) tile.appendChild(g); else tile.textContent = initials(app.n);
     tile.setAttribute("aria-hidden", "true");
     var lab = document.createElement("span");
     lab.className = "label";
@@ -355,7 +418,6 @@
     setTextWithFlags($("host-text"), layout.text);
     // The new layouts are not in 0.1.0 yet, so only show a command for ones that ship today.
     $("host-cmd").textContent = layout.group === "before" ? "" : "organize-my-iphone apply " + layout.id + " --dry-run";
-    $("host-soon").hidden = layout.group !== "new";
     $("host-c").querySelector("use").setAttribute("href", "#" + layout.host);
     renderPage(true);
     checkLimits();
